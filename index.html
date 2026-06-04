@@ -309,6 +309,26 @@
     .dot.falta { background: var(--red); }
     .dot.canc { background: var(--gray); }
 
+.dot.asistencia { background: var(--green); }
+.dot.falta { background: var(--red); }
+.dot.observado { background: var(--yellow); }
+
+.legend-split {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.legend-group {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.legend-group-labor {
+  margin-left: auto;
+}
+    
     .list {
       display: flex;
       flex-direction: column;
@@ -885,7 +905,6 @@
     <div>
       <div class="app-brand">
         <h1>SEGPRIV</h1>
-        <span class="app-version">v0.3.12</span>
       </div>
       <p>Portal operativo</p>
     </div>
@@ -927,7 +946,7 @@
     <div>
       <div class="app-brand">
         <h1>SEGPRIV</h1>
-        <span class="app-version">v0.3.9</span>
+        <span class="app-version">v0.3.15</span>
       </div>
       <p>Portal operativo</p>
     </div>
@@ -974,13 +993,19 @@
   </div>
 </div>
 
-<div class="legend">
-  <button id="filterTODOS" class="active" onclick="setStatusFilter('TODOS')">Todos</button>
-  <button id="filterPROG" onclick="setStatusFilter('PROG')"><span class="dot prog"></span>PROG</button>
-  <button id="filterCONF" onclick="setStatusFilter('CONF')"><span class="dot conf"></span>CONF</button>
-  <button id="filterRUTA" onclick="setStatusFilter('RUTA')"><span class="dot ruta"></span>RUTA</button>
-  <button id="filterPRES" onclick="setStatusFilter('PRES')"><span class="dot pres"></span>PRES</button>
-  <button id="filterCUB" onclick="setStatusFilter('CUB')"><span class="dot cub"></span>CUB</button>
+<div class="legend legend-split">
+  <div class="legend-group">
+    <button id="filterTODOS" class="active" onclick="setStatusFilter('TODOS')">Todos</button>
+    <button id="filterCONF" onclick="setStatusFilter('CONF')"><span class="dot conf"></span>CONF</button>
+    <button id="filterRUTA" onclick="setStatusFilter('RUTA')"><span class="dot ruta"></span>RUTA</button>
+    <button id="filterPRES" onclick="setStatusFilter('PRES')"><span class="dot pres"></span>PRES</button>
+  </div>
+
+  <div class="legend-group legend-group-labor">
+    <button id="filterASISTENCIA" onclick="setStatusFilter('ASISTENCIA')"><span class="dot asistencia"></span>Asistencia</button>
+    <button id="filterFALTA" onclick="setStatusFilter('FALTA')"><span class="dot falta"></span>Falta</button>
+    <button id="filterOBSERVADO" onclick="setStatusFilter('OBSERVADO')"><span class="dot observado"></span>Observado</button>
+  </div>
 </div>
 
       <div id="calendarView"></div>
@@ -1130,24 +1155,48 @@ function setCalendarMode(mode) {
       renderCalendar();
     }
 
-    function setStatusFilter(status) {
-      statusFilter = status;
+function setStatusFilter(status) {
+  statusFilter = status;
 
-      ["TODOS", "PROG", "CONF", "RUTA", "PRES", "CUB"].forEach(s => {
-        const btn = document.getElementById(`filter${s}`);
-        if (btn) btn.classList.toggle("active", s === status);
-      });
+  ["TODOS", "CONF", "RUTA", "PRES", "ASISTENCIA", "FALTA", "OBSERVADO"].forEach(s => {
+    const btn = document.getElementById(`filter${s}`);
+    if (btn) btn.classList.toggle("active", s === status);
+  });
 
-      renderViews();
-    }
+  renderViews();
+}
 
-    function getFilteredServices() {
-      if (statusFilter === "TODOS") {
-        return servicios;
-      }
+function getFilteredServices() {
+  if (statusFilter === "TODOS") {
+    return servicios;
+  }
 
-      return servicios.filter(item => item.estado === statusFilter);
-    }
+  if (statusFilter === "ASISTENCIA") {
+    return servicios.filter(item => {
+      const estado = String(item.estado || "").toUpperCase();
+      return estado === "ASIST" || estado === "ASISTENCIA";
+    });
+  }
+
+  if (statusFilter === "FALTA") {
+    return servicios.filter(item => {
+      const estado = String(item.estado || "").toUpperCase();
+      return estado === "FALTA" || estado === "FALTO";
+    });
+  }
+
+  if (statusFilter === "OBSERVADO") {
+    return servicios.filter(item => {
+      const estado = String(item.estado || "").toUpperCase();
+      return estado === "OBS" || estado === "OBSERVADO";
+    });
+  }
+
+  return servicios.filter(item => {
+    const estado = String(item.estado || "").toUpperCase();
+    return estado === statusFilter;
+  });
+}
 
     function renderViews() {
       renderList();
