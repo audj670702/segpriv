@@ -596,9 +596,92 @@
   color: white;
   border-color: var(--dark);
 }
+
+.view-filter-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.compact-view-tabs {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.compact-view-tabs button {
+  padding: 9px 14px;
+  font-size: 13px;
+}
+
+.inline-period-controls {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.inline-period-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.inline-period-controls input[type="date"] {
+  width: 126px;
+  padding: 7px 8px;
+  font-size: 12px;
+  border-radius: 10px;
+}
+
+.inline-period-controls button {
+  padding: 8px 12px;
+  font-size: 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
     
     @media (max-width: 520px) {
-      
+
+      .view-filter-row {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.compact-view-tabs {
+  display: flex;
+  width: 100%;
+}
+
+.compact-view-tabs button {
+  flex: 1;
+}
+
+.inline-period-controls {
+  justify-content: space-between;
+  width: 100%;
+}
+
+.inline-period-controls label {
+  flex: 1;
+  min-width: 0;
+}
+
+.inline-period-controls input[type="date"] {
+  width: 100%;
+  font-size: 11px;
+  padding: 7px 6px;
+}
+
+.inline-period-controls button {
+  width: 100%;
+  margin-top: 4px;
+}
       .control-row {
   grid-template-columns: 1fr;
 }
@@ -691,8 +774,20 @@
         <button onclick="loadServices()">Actualizar</button>
       </div>
 
-<div class="control-card compact-controls">
-  <div class="control-row">
+  <div class="toolbar compact-toolbar">
+    <button onclick="loadServices()">Actualizar período</button>
+  </div>
+</div>
+
+      <div id="statusLine" class="status-line">Cargando servicios...</div>
+
+  <div class="view-filter-row">
+  <div class="view-tabs compact-view-tabs">
+    <button id="btnViewCalendar" class="active" onclick="setView('calendar')">Calendario</button>
+    <button id="btnViewList" onclick="setView('list')">Lista</button>
+  </div>
+
+  <div class="inline-period-controls">
     <label>
       <span>Ir a fecha</span>
       <input id="inputGoDate" type="date" onchange="goToSelectedDate()" />
@@ -707,19 +802,10 @@
       <span>Fin</span>
       <input id="inputEndDate" type="date" />
     </label>
-  </div>
 
-  <div class="toolbar compact-toolbar">
-    <button onclick="loadServices()">Actualizar período</button>
+    <button onclick="loadServices()">Actualizar</button>
   </div>
 </div>
-
-      <div id="statusLine" class="status-line">Cargando servicios...</div>
-
-      <div class="view-tabs">
-        <button id="btnViewCalendar" class="active" onclick="setView('calendar')">Calendario</button>
-        <button id="btnViewList" onclick="setView('list')">Lista</button>
-      </div>
 
 <div class="legend">
   <button id="filterTODOS" class="active" onclick="setStatusFilter('TODOS')">Todos</button>
