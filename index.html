@@ -489,15 +489,8 @@
     .reminder.pres { border-left: 6px solid var(--teal); }
     .reminder.cub { border-left: 6px solid var(--green); }
 
-    .progress-line {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
-      margin: 12px 0;
-    }
-
 .guard-progress {
-  margin: 14px 0 18px;
+  margin: 16px 0 20px;
 }
 
 .guard-progress-track {
@@ -510,13 +503,13 @@
 .guard-step {
   position: relative;
   text-align: center;
-  padding-top: 18px;
+  padding-top: 20px;
 }
 
 .guard-step::before {
   content: "";
   position: absolute;
-  top: 6px;
+  top: 7px;
   left: 0;
   right: 0;
   height: 4px;
@@ -532,9 +525,13 @@
   right: 50%;
 }
 
+.guard-step.operational::before {
+  background: #9ca3af;
+}
+
 .guard-step-dot {
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
   border-radius: 999px;
   background: #d1d5db;
   border: 3px solid white;
@@ -546,26 +543,26 @@
   z-index: 2;
 }
 
-.guard-step.done::before,
-.guard-step.current::before {
-  background: var(--green);
-}
-
-.guard-step.done .guard-step-dot {
+.guard-step.registered .guard-step-dot {
   background: var(--green);
   box-shadow: 0 0 0 2px var(--green);
 }
 
-.guard-step.current .guard-step-dot {
-  background: var(--blue);
-  box-shadow: 0 0 0 3px rgba(37,99,235,0.25);
+.guard-step.not-registered .guard-step-dot {
+  background: #9ca3af;
+  box-shadow: 0 0 0 2px #9ca3af;
+}
+
+.guard-step.locked .guard-step-dot {
+  background: #e5e7eb;
+  box-shadow: 0 0 0 2px #d1d5db;
 }
 
 .guard-step-label {
   font-size: 12px;
   font-weight: 700;
   color: var(--text);
-  margin-top: 4px;
+  margin-top: 5px;
 }
 
 .guard-step-time {
@@ -576,30 +573,18 @@
   line-height: 1.25;
 }
 
-.guard-step.pending .guard-step-label,
-.guard-step.pending .guard-step-time {
+.guard-step.registered .guard-step-label {
+  color: var(--green);
+}
+
+.guard-step.not-registered .guard-step-label {
+  color: #6b7280;
+}
+
+.guard-step.locked .guard-step-label,
+.guard-step.locked .guard-step-time {
   color: #9ca3af;
 }
-    
-    .step {
-      text-align: center;
-      border-radius: 12px;
-      padding: 8px 4px;
-      font-size: 11px;
-      font-weight: 700;
-      background: #e5e7eb;
-      color: #6b7280;
-    }
-
-    .step.done {
-      background: #111827;
-      color: white;
-    }
-
-    .step.current {
-      background: #2563eb;
-      color: white;
-    }
 
     .empty {
       background: white;
@@ -900,7 +885,7 @@
     <div>
       <div class="app-brand">
         <h1>SEGPRIV</h1>
-        <span class="app-version">v0.3.11</span>
+        <span class="app-version">v0.3.12</span>
       </div>
       <p>Portal operativo</p>
     </div>
@@ -1440,48 +1425,62 @@ ${renderProgressLine(item)}
     }
 
 function renderProgressLine(item) {
-  const estado = String(item.estado || "").toUpperCase();
+  const inicioServicio = getServiceStartDateTime(item);
+  const ahora = new Date();
+
+  const rutaDisponible = inicioServicio
+    ? ahora >= addHours(inicioServicio, -5)
+    : false;
+
+  const presenteDisponible = inicioServicio
+    ? ahora >= addHours(inicioServicio, -1)
+    : false;
 
   const steps = [
     {
-      key: "CONF",
       label: "Confirmado",
-      value: item.fechaConfirmacionConocimiento
+      value: item.fechaConfirmacionConocimiento,
+      operational: true,
+      lockedText: "Disponible"
     },
     {
-      key: "RUTA",
       label: "En ruta",
-      value: item.fechaEnRuta
+      value: item.fechaEnRuta,
+      operational: rutaDisponible,
+      lockedText: "Disponible 5 h antes"
     },
     {
-      key: "PRES",
       label: "Presente",
-      value: item.fechaEnServicio
+      value: item.fechaEnServicio,
+      operational: presenteDisponible,
+      lockedText: "Disponible 1 h antes"
     }
   ];
-
-  const currentIndex =
-    estado === "CONF" ? 0 :
-    estado === "RUTA" ? 1 :
-    estado === "PRES" || estado === "CUB" ? 2 :
-    -1;
 
   return `
     <div class="guard-progress">
       <div class="guard-progress-track">
-        ${steps.map((step, index) => {
-          let cls = "pending";
+        ${steps.map(step => {
+          const registrado = hasValidDate(step.value);
 
-          if (currentIndex >= 0 && index < currentIndex) cls = "done";
-          if (currentIndex >= 0 && index === currentIndex) cls = "current";
+          let cls = "locked";
+          let texto = step.lockedText;
 
-          if (estado === "CUB" && index <= 2) cls = "done";
+          if (step.operational && registrado) {
+            cls = "registered";
+            texto = formatProgressDateTime(step.value);
+          }
+
+          if (step.operational && !registrado) {
+            cls = "not-registered operational";
+            texto = "No registrado";
+          }
 
           return `
             <div class="guard-step ${cls}">
               <div class="guard-step-dot"></div>
               <div class="guard-step-label">${step.label}</div>
-              <div class="guard-step-time">${formatProgressDateTime(step.value)}</div>
+              <div class="guard-step-time">${texto}</div>
             </div>
           `;
         }).join("")}
@@ -1564,6 +1563,60 @@ function formatProgressDateTime(value) {
 
   if (isNaN(d.getTime())) {
     return "Pendiente";
+  }
+
+  return d.toLocaleString("es-MX", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function hasValidDate(value) {
+  if (!value) return false;
+
+  const d = new Date(value);
+  return !isNaN(d.getTime());
+}
+
+function addHours(date, hours) {
+  const d = new Date(date);
+  d.setHours(d.getHours() + hours);
+  return d;
+}
+
+function getServiceStartDateTime(item) {
+  if (!item || !item.fecha) return null;
+
+  const fecha = String(item.fecha).split("T")[0];
+  const hora = String(item.horaInicio || "").trim();
+
+  if (!fecha || !hora) return null;
+
+  const fechaParts = fecha.split("-");
+  const horaParts = hora.split(":");
+
+  const y = Number(fechaParts[0]);
+  const m = Number(fechaParts[1]);
+  const d = Number(fechaParts[2]);
+  const hh = Number(horaParts[0]);
+  const mm = Number(horaParts[1] || 0);
+
+  const result = new Date(y, m - 1, d, hh, mm, 0, 0);
+
+  if (isNaN(result.getTime())) return null;
+
+  return result;
+}
+
+function formatProgressDateTime(value) {
+  if (!value) return "No registrado";
+
+  const d = new Date(value);
+
+  if (isNaN(d.getTime())) {
+    return "No registrado";
   }
 
   return d.toLocaleString("es-MX", {
