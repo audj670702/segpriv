@@ -44,7 +44,7 @@
     .app {
       min-height: 100vh;
       padding: 14px;
-      max-width: 720px;
+      max-width: 760px;
       margin: 0 auto;
     }
 
@@ -68,16 +68,16 @@
     }
 
     .version-badge {
-  display: inline-block;
-  margin-top: 8px;
-  margin-bottom: 4px;
-  padding: 4px 9px;
-  border-radius: 999px;
-  background: #2563eb;
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 700;
-}
+      display: inline-block;
+      margin-top: 8px;
+      margin-bottom: 4px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: #2563eb;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 700;
+    }
 
     .screen {
       display: none;
@@ -113,11 +113,15 @@
       color: var(--muted);
     }
 
-    .toolbar {
+    .toolbar,
+    .view-tabs,
+    .calendar-controls,
+    .period-controls {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
-      margin: 14px 0;
+      margin: 12px 0;
+      align-items: center;
     }
 
     button {
@@ -148,9 +152,32 @@
       background: var(--teal);
     }
 
-    button:disabled {
-      background: #9ca3af;
-      cursor: not-allowed;
+    button.active {
+      background: var(--blue);
+    }
+
+    input[type="date"] {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 14px;
+      background: white;
+      color: var(--text);
+    }
+
+    .control-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      margin: 12px 0;
+    }
+
+    .control-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 5px;
     }
 
     .status-line {
@@ -161,16 +188,6 @@
 
     .status-error {
       color: var(--red);
-    }
-
-    .view-tabs {
-      display: flex;
-      gap: 8px;
-      margin: 12px 0;
-    }
-
-    .view-tabs button.active {
-      background: var(--blue);
     }
 
     .legend {
@@ -308,6 +325,16 @@
       padding: 4px;
       font-size: 11px;
       background: #f9fafb;
+      cursor: pointer;
+    }
+
+    .day.selected {
+      outline: 2px solid var(--blue);
+      outline-offset: -2px;
+    }
+
+    .day.today {
+      border: 2px solid var(--dark);
     }
 
     .day-number {
@@ -336,6 +363,12 @@
     .mini-event.pend { background: #ca8a04; }
     .mini-event.falta { background: var(--red); }
     .mini-event.canc { background: var(--gray); }
+
+    .day-mode-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
     .detail {
       background: white;
@@ -427,6 +460,11 @@
       .mini-event {
         font-size: 8px;
       }
+
+      button {
+        font-size: 13px;
+        padding: 10px 12px;
+      }
     }
   </style>
 </head>
@@ -464,16 +502,37 @@
     </section>
 
     <section id="screenServices" class="screen">
-
       <div class="top">
-  <h1>Mis servicios</h1>
-  <div class="version-badge">Versión prueba 0.2 · Mis Servicios</div>
-  <p id="guardiaNombre">Guardia</p>
-</div>
+        <h1>Mis servicios</h1>
+        <div class="version-badge">Versión prueba 0.3 · Calendario</div>
+        <p id="guardiaNombre">Guardia</p>
+      </div>
 
       <div class="toolbar">
         <button class="secondary" onclick="goHome()">Inicio</button>
         <button onclick="loadServices()">Actualizar</button>
+      </div>
+
+      <div class="control-card">
+        <div class="control-label">Vista calendario</div>
+        <div class="calendar-controls">
+          <button class="secondary" onclick="goToday()">Hoy</button>
+          <button id="btnModeMonth" class="active" onclick="setCalendarMode('month')">Mes</button>
+          <button id="btnModeWeek" onclick="setCalendarMode('week')">Semana</button>
+          <button id="btnModeDay" onclick="setCalendarMode('day')">Día</button>
+        </div>
+
+        <div class="control-label">Ir a fecha</div>
+        <div class="calendar-controls">
+          <input id="inputGoDate" type="date" onchange="goToSelectedDate()" />
+        </div>
+
+        <div class="control-label">Período de consulta</div>
+        <div class="period-controls">
+          <input id="inputStartDate" type="date" />
+          <input id="inputEndDate" type="date" />
+          <button onclick="loadServices()">Actualizar período</button>
+        </div>
       </div>
 
       <div id="statusLine" class="status-line">Cargando servicios...</div>
@@ -519,12 +578,28 @@
     let selectedItem = null;
     let currentView = "calendar";
     let statusFilter = "TODOS";
+    let calendarMode = "month";
+    let selectedDate = new Date();
 
     document.addEventListener("DOMContentLoaded", () => {
+      setInitialPeriod();
+
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("sw.js").catch(() => {});
       }
     });
+
+    function setInitialPeriod() {
+      const today = new Date();
+      selectedDate = today;
+
+      const start = new Date(today.getFullYear(), today.getMonth(), 1);
+      const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+      document.getElementById("inputStartDate").value = toDateKey(start);
+      document.getElementById("inputEndDate").value = toDateKey(end);
+      document.getElementById("inputGoDate").value = toDateKey(today);
+    }
 
     function showScreen(id) {
       document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
@@ -553,8 +628,16 @@
     async function loadServices() {
       setStatus("Cargando servicios...");
 
+      const fechaInicio = document.getElementById("inputStartDate").value;
+      const fechaFin = document.getElementById("inputEndDate").value;
+
       try {
-        const url = `${API_BASE}/sprivMisServicios?clavePersonal=${encodeURIComponent(CLAVE_PERSONAL_PRUEBA)}&fechaInicio=2026-06-01&fechaFin=2026-07-31&estatus=TODOS`;
+        const url =
+          `${API_BASE}/sprivMisServicios?clavePersonal=${encodeURIComponent(CLAVE_PERSONAL_PRUEBA)}` +
+          `&fechaInicio=${encodeURIComponent(fechaInicio)}` +
+          `&fechaFin=${encodeURIComponent(fechaFin)}` +
+          `&estatus=TODOS`;
+
         const res = await fetch(url);
         const data = await res.json();
 
@@ -583,6 +666,32 @@
 
       document.getElementById("calendarView").style.display = view === "calendar" ? "block" : "none";
       document.getElementById("listView").style.display = view === "list" ? "block" : "none";
+    }
+
+    function setCalendarMode(mode) {
+      calendarMode = mode;
+
+      document.getElementById("btnModeMonth").classList.toggle("active", mode === "month");
+      document.getElementById("btnModeWeek").classList.toggle("active", mode === "week");
+      document.getElementById("btnModeDay").classList.toggle("active", mode === "day");
+
+      renderCalendar();
+    }
+
+    function goToday() {
+      selectedDate = new Date();
+      document.getElementById("inputGoDate").value = toDateKey(selectedDate);
+      calendarMode = "day";
+      setCalendarMode("day");
+    }
+
+    function goToSelectedDate() {
+      const value = document.getElementById("inputGoDate").value;
+
+      if (!value) return;
+
+      selectedDate = createLocalDate(value);
+      renderCalendar();
     }
 
     function setStatusFilter(status) {
@@ -639,12 +748,25 @@
     }
 
     function renderCalendar() {
+      if (calendarMode === "day") {
+        renderDayCalendar();
+        return;
+      }
+
+      if (calendarMode === "week") {
+        renderWeekCalendar();
+        return;
+      }
+
+      renderMonthCalendar();
+    }
+
+    function renderMonthCalendar() {
       const root = document.getElementById("calendarView");
       const data = getFilteredServices();
 
-      const base = new Date("2026-06-01T00:00:00");
-      const year = base.getFullYear();
-      const month = base.getMonth();
+      const year = selectedDate.getFullYear();
+      const month = selectedDate.getMonth();
 
       const firstDay = new Date(year, month, 1);
       const lastDay = new Date(year, month + 1, 0);
@@ -652,7 +774,7 @@
       const totalDays = lastDay.getDate();
 
       const names = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-      let html = `<div class="calendar"><div class="calendar-title">Junio 2026</div><div class="calendar-grid">`;
+      let html = `<div class="calendar"><div class="calendar-title">${monthName(month)} ${year}</div><div class="calendar-grid">`;
 
       names.forEach(n => html += `<div class="day-name">${n}</div>`);
 
@@ -661,21 +783,102 @@
       }
 
       for (let d = 1; d <= totalDays; d++) {
-        const key = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+        const date = new Date(year, month, d);
+        const key = toDateKey(date);
         const dayItems = data.filter(s => s.fechaKey === key);
 
-        html += `<div class="day">
-          <div class="day-number">${d}</div>
-          ${dayItems.map(item => `
-            <div class="mini-event ${statusClass(item.estado)}" onclick="openDetail('${item.coberturaId}')">
-              ${item.horaInicio || ""} ${item.servicio || ""} ${item.estado || ""}
-            </div>
-          `).join("")}
-        </div>`;
+        html += renderDayCell(date, dayItems);
       }
 
       html += `</div></div>`;
       root.innerHTML = html;
+    }
+
+    function renderWeekCalendar() {
+      const root = document.getElementById("calendarView");
+      const data = getFilteredServices();
+      const start = startOfWeek(selectedDate);
+      const end = addDays(start, 6);
+      const names = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+      let html = `<div class="calendar"><div class="calendar-title">Semana ${formatDate(toDateKey(start))} - ${formatDate(toDateKey(end))}</div><div class="calendar-grid">`;
+
+      names.forEach(n => html += `<div class="day-name">${n}</div>`);
+
+      for (let i = 0; i < 7; i++) {
+        const date = addDays(start, i);
+        const key = toDateKey(date);
+        const dayItems = data.filter(s => s.fechaKey === key);
+
+        html += renderDayCell(date, dayItems);
+      }
+
+      html += `</div></div>`;
+      root.innerHTML = html;
+    }
+
+    function renderDayCalendar() {
+      const root = document.getElementById("calendarView");
+      const data = getFilteredServices();
+      const key = toDateKey(selectedDate);
+      const dayItems = data.filter(s => s.fechaKey === key);
+
+      let html = `<div class="calendar">
+        <div class="calendar-title">Día ${formatDate(key)}</div>
+      `;
+
+      if (!dayItems.length) {
+        html += `<div class="empty">Sin servicios para este día.</div>`;
+      } else {
+        html += `<div class="day-mode-list">`;
+        dayItems.forEach(item => {
+          html += `
+            <div class="service-card ${statusClass(item.estado)}" onclick="openDetail('${item.coberturaId}')">
+              <div class="service-card-header">
+                <div class="service-card-title">${item.horario} · ${item.servicio || "Servicio"}</div>
+                <span class="badge ${statusClass(item.estado)}">${item.estado}</span>
+              </div>
+              <div class="service-card-sub">
+                ${item.posicion || ""}<br>
+                Cliente: ${item.claveCliente || ""}
+              </div>
+            </div>
+          `;
+        });
+        html += `</div>`;
+      }
+
+      html += `</div>`;
+      root.innerHTML = html;
+    }
+
+    function renderDayCell(date, dayItems) {
+      const key = toDateKey(date);
+      const todayClass = isSameDay(date, new Date()) ? "today" : "";
+      const selectedClass = isSameDay(date, selectedDate) ? "selected" : "";
+
+      return `
+        <div class="day ${todayClass} ${selectedClass}" onclick="selectCalendarDate('${key}')">
+          <div class="day-number">${date.getDate()}</div>
+          ${dayItems.map(item => `
+            <div class="mini-event ${statusClass(item.estado)}" onclick="event.stopPropagation(); openDetail('${item.coberturaId}')">
+              ${item.horaInicio || ""} ${item.servicio || ""} ${item.estado || ""}
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function selectCalendarDate(key) {
+      selectedDate = createLocalDate(key);
+      document.getElementById("inputGoDate").value = key;
+
+      if (calendarMode === "month") {
+        renderCalendar();
+        return;
+      }
+
+      renderCalendar();
     }
 
     function openDetail(id) {
@@ -868,6 +1071,45 @@
         dateStyle: "short",
         timeStyle: "short"
       });
+    }
+
+    function toDateKey(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+
+      return `${y}-${m}-${d}`;
+    }
+
+    function createLocalDate(key) {
+      const parts = String(key || "").split("-");
+      return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    }
+
+    function startOfWeek(date) {
+      const d = new Date(date);
+      d.setDate(d.getDate() - d.getDay());
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
+
+    function addDays(date, days) {
+      const d = new Date(date);
+      d.setDate(d.getDate() + days);
+      return d;
+    }
+
+    function isSameDay(a, b) {
+      return toDateKey(a) === toDateKey(b);
+    }
+
+    function monthName(index) {
+      const names = [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+      ];
+
+      return names[index] || "";
     }
   </script>
 </body>
