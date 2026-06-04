@@ -84,6 +84,39 @@
   white-space: nowrap;
 }
 
+    .app-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.module-title-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 8px 0 12px;
+}
+
+.module-title-row h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.module-title-row p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.module-status-inline {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  text-align: right;
+  margin-bottom: 1px;
+}
+
 .topbar-actions {
   display: flex;
   gap: 8px;
@@ -679,6 +712,15 @@
     
     @media (max-width: 520px) {
 
+      .module-title-row {
+  align-items: flex-start;
+}
+
+.module-status-inline {
+  font-size: 11px;
+  max-width: 45%;
+}
+      
 .topbar-icon-btn {
   width: 32px;
   height: 32px;
@@ -767,10 +809,14 @@
   <div class="app">
 
 <section id="screenHome" class="screen active">
-<div class="app-top">
+
+  <div class="app-top">
   <div class="app-title-row">
     <div>
-      <h1>SEGPRIV</h1>
+      <div class="app-brand">
+        <h1>SEGPRIV</h1>
+        <span class="app-version">v0.3.9</span>
+      </div>
       <p>Portal operativo</p>
     </div>
 
@@ -805,19 +851,32 @@
     </section>
 
     <section id="screenServices" class="screen">
-<div class="app-top">
+
+      <div class="app-top">
   <div class="app-title-row">
-    <h1>SEGPRIV</h1>
+    <div>
+      <div class="app-brand">
+        <h1>SEGPRIV</h1>
+        <span class="app-version">v0.3.9</span>
+      </div>
+      <p>Portal operativo</p>
+    </div>
+
+    <div class="topbar-actions">
+      <button class="topbar-icon-btn" onclick="goHome()" title="Inicio" aria-label="Inicio">⌂</button>
+      <button class="topbar-icon-btn" onclick="loadServices()" title="Actualizar" aria-label="Actualizar">↻</button>
+    </div>
   </div>
-  <p>Portal operativo</p>
 </div>
 
-<div class="module-title">
-  <h2>Mis servicios</h2>
-  <p>Guardia: <span id="guardiaNombre">Guardia</span></p>
-</div>
+<div class="module-title-row">
+  <div>
+    <h2>Mis servicios</h2>
+    <p>Guardia: <span id="guardiaNombre">Guardia</span></p>
+  </div>
 
-      <div id="statusLine" class="status-line">Cargando servicios...</div>
+  <div id="statusLine" class="status-line module-status-inline">Cargando servicios...</div>
+</div>
 
   <div class="view-filter-row">
   <div class="view-tabs compact-view-tabs">
@@ -929,11 +988,13 @@
       showScreen("screenServices");
     }
 
-    function setStatus(text, error = false) {
-      const el = document.getElementById("statusLine");
-      el.textContent = text;
-      el.className = error ? "status-line status-error" : "status-line";
-    }
+function setStatus(text, error = false) {
+  const el = document.getElementById("statusLine");
+  el.textContent = text;
+  el.className = error
+    ? "status-line module-status-inline status-error"
+    : "status-line module-status-inline";
+}
 
     async function loadServices() {
       setStatus("Cargando servicios...");
