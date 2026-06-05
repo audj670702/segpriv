@@ -1006,7 +1006,7 @@
     <div>
       <div class="app-brand">
         <h1>SEGPRIV</h1>
-        <span class="app-version">v0.3.34</span>
+        <span class="app-version">v0.3.35</span>
       </div>
       <p>Portal operativo</p>
     </div>
@@ -2774,7 +2774,7 @@ function initSegprivInstallFlow() {
     return;
   }
 
-  hideInstallActions();
+  showAndroidInstallAction(false);
 
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
@@ -2792,10 +2792,18 @@ function initSegprivInstallFlow() {
 }
 
 async function installSegprivPwa() {
-  if (isIOS || isStandalone) return;
+  if (isStandalone) {
+    showInstalledStatus();
+    return;
+  }
+
+  if (isIOS) {
+    openIosInstallHelp();
+    return;
+  }
 
   if (!deferredPrompt) {
-    showToast("La instalación aún no está disponible en este navegador");
+    showToast("Usa el menú del navegador y elige Instalar app");
     return;
   }
 
