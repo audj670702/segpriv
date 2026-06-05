@@ -2025,7 +2025,7 @@ async function loadSmsPending() {
       return;
     }
 
-    smsPendingListData = data.contacts || [];
+smsPendingListData = data.contacts || data.pending || [];
 
     if (!smsPendingListData.length) {
       select.innerHTML = `<option value="">Sin mensajes</option>`;
