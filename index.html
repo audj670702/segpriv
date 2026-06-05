@@ -794,6 +794,12 @@
   flex-shrink: 0;
 }
 
+    .sms-small-btn {
+  padding: 7px 10px;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+    
 .sms-hidden {
   display: none;
 }
@@ -863,7 +869,7 @@
         <div>
           <div class="app-brand">
             <h1>SEGPRIV</h1>
-            <span class="app-version">v0.3.25</span>
+            <span class="app-version">v0.3.26</span>
           </div>
           <p>Portal operativo</p>
         </div>
@@ -1031,11 +1037,12 @@
     <div class="sms-card">
       <div class="sms-two-columns">
         <div>
-          <div class="sms-chat-title">Conversaciones</div>
-          <select id="smsConversationSelect" class="sms-input" onchange="selectSmsConversationFromList()">
-            <option value="">Sin conversaciones</option>
-          </select>
-        </div>
+<div>
+  <div class="sms-chat-title">Contactos regulares</div>
+  <select id="smsRegularContactSelect" class="sms-input" onchange="selectSmsRegularContactFromList()">
+    <option value="">Sin contactos</option>
+  </select>
+</div>
 
         <div>
           <div class="sms-chat-title">Mensajes pendientes</div>
@@ -1047,12 +1054,20 @@
     </div>
 
     <div class="sms-card">
-      <div class="sms-chat-header">
-        <div>
-          <div class="sms-chat-title" id="smsChatTitle">Chat</div>
-          <div class="sms-contact-meta" id="smsChatMeta">Selecciona una conversación o contacto</div>
-        </div>
-      </div>
+<div class="sms-chat-header">
+  <div>
+    <div class="sms-chat-title" id="smsChatTitle">Chat</div>
+    <div class="sms-contact-meta" id="smsChatMeta">Selecciona un contacto</div>
+  </div>
+
+  <button
+    id="smsRegularContactBtn"
+    class="secondary sms-small-btn hidden"
+    onclick="toggleSmsRegularContact()"
+  >
+    Agregar
+  </button>
+</div>
 
       <div id="smsChatBox" class="sms-chat-box">
         <div class="empty">Selecciona una conversación para abrir el chat.</div>
@@ -1106,7 +1121,7 @@ let smsProfile = null;
 let smsSelectedContact = null;
 let smsRefreshTimer = null;
     let smsSearchTimer = null;
-let smsConversationList = [];
+let smsRegularContactList = [];
 let smsPendingListData = [];
     let deferredPrompt = null;
 
@@ -1852,7 +1867,7 @@ if (!CURRENT_MEMBER_ID) {
 
 mainBox.classList.remove("sms-hidden");
 
-await loadSmsConversations();
+await loadSmsRegularContacts();
 await loadSmsPending();
 
     if (smsRefreshTimer) {
@@ -1877,10 +1892,10 @@ await loadSmsPending();
   }
 }
 
-async function loadSmsConversations() {
+async function loadSmsRegularContacts() {
   if (!CURRENT_MEMBER_ID) return;
 
-  const select = document.getElementById("smsConversationSelect");
+  const select = document.getElementById("smsRegularContactSelect");
 
   if (!select) return;
 
@@ -1888,27 +1903,27 @@ async function loadSmsConversations() {
 
   try {
     const res = await fetch(
-      `${API_BASE}/sprivSmsConversations?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}`
+      `${API_BASE}/sprivSmsContacts?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}`
     );
 
     const data = await res.json();
 
     if (!data.ok) {
-      smsConversationList = [];
+      smsRegularContactList = [];
       select.innerHTML = `<option value="">No disponible</option>`;
       return;
     }
 
-    smsConversationList = data.conversations || [];
+    smsRegularContactList = data.contacts || [];
 
-    if (!smsConversationList.length) {
-      select.innerHTML = `<option value="">Sin conversaciones</option>`;
+    if (!smsRegularContactList.length) {
+      select.innerHTML = `<option value="">Sin contactos</option>`;
       return;
     }
 
     select.innerHTML = `
       <option value="">Seleccionar</option>
-      ${smsConversationList.map(item => {
+      ${smsRegularContactList.map(item => {
         const label = item.nombreMostrar || "Contacto";
         return `<option value="${escapeAttr(item.contactMemberId)}">${escapeHtml(label)}</option>`;
       }).join("")}
@@ -1916,18 +1931,19 @@ async function loadSmsConversations() {
 
   } catch (err) {
     console.error(err);
-    smsConversationList = [];
+    smsRegularContactList = [];
     select.innerHTML = `<option value="">Error</option>`;
   }
 }
-function selectSmsConversationFromList() {
-  const select = document.getElementById("smsConversationSelect");
+    
+function selectSmsRegularContactFromList() {
+  const select = document.getElementById("smsRegularContactSelect");
   if (!select) return;
 
   const contactMemberId = select.value;
   if (!contactMemberId) return;
 
-  const item = smsConversationList.find(c => c.contactMemberId === contactMemberId);
+  const item = smsRegularContactList.find(c => c.contactMemberId === contactMemberId);
 
   if (!item) return;
 
@@ -1939,7 +1955,8 @@ function selectSmsConversationFromList() {
   openSmsConversation(
     item.contactMemberId,
     item.nombreMostrar || "Contacto",
-    meta
+    meta,
+    true
   );
 }
     
@@ -2007,11 +2024,14 @@ async function loadSmsPending() {
 
   const name = item.nombreMostrar || item.displayName || item.nombreCompleto || "Contacto";
 
-  openSmsConversation(
-    contactMemberId,
-    name,
-    item.rolSegpriv || ""
-  );
+const isRegular = smsRegularContactList.some(c => c.contactMemberId === contactMemberId);
+
+openSmsConversation(
+  contactMemberId,
+  name,
+  item.rolSegpriv || "",
+  isRegular
+);
 }
 
 function handleSmsLiveSearch() {
@@ -2083,8 +2103,10 @@ async function searchSmsContacts() {
         item.smsCode ? `Código: ${item.smsCode}` : ""
       ].filter(Boolean).join(" · ");
 
-      return `
-        <div class="sms-contact-item" onclick="openSmsConversation('${escapeAttr(item.memberId)}', '${escapeAttr(name)}', '${escapeAttr(meta)}')">
+     const isRegular = smsRegularContactList.some(c => c.contactMemberId === item.memberId);
+
+return `
+  <div class="sms-contact-item" onclick="openSmsConversation('${escapeAttr(item.memberId)}', '${escapeAttr(name)}', '${escapeAttr(meta)}', ${isRegular})">
           <div class="sms-contact-name">${escapeHtml(name)}</div>
           <div class="sms-contact-meta">${escapeHtml(meta)}</div>
         </div>
@@ -2097,19 +2119,21 @@ async function searchSmsContacts() {
   }
 }
 
-async function openSmsConversation(contactMemberId, contactName, contactMeta = "") {
+async function openSmsConversation(contactMemberId, contactName, contactMeta = "", isRegular = false) {
   if (!CURRENT_MEMBER_ID || !contactMemberId) return;
 
-  smsSelectedContact = {
-    memberId: contactMemberId,
-    nombreMostrar: contactName || "Contacto",
-    meta: contactMeta || ""
-  };
+smsSelectedContact = {
+  memberId: contactMemberId,
+  nombreMostrar: contactName || "Contacto",
+  meta: contactMeta || "",
+  isRegular: Boolean(isRegular)
+};
 
   document.getElementById("smsChatTitle").textContent = smsSelectedContact.nombreMostrar;
   document.getElementById("smsChatMeta").textContent = smsSelectedContact.meta || "Conversación interna";
   document.getElementById("smsMessageInput").disabled = false;
   document.getElementById("smsSendButton").disabled = false;
+  updateSmsRegularContactButton();
 
   document.getElementById("smsChatBox").innerHTML = `<div class="empty">Abriendo conversación...</div>`;
 
@@ -2133,8 +2157,8 @@ async function openSmsConversation(contactMemberId, contactName, contactMeta = "
 
     await markSmsCurrentRead();
     await loadSmsMessages(true);
-    await loadSmsPending();
-    await loadSmsConversations();
+await loadSmsPending();
+await loadSmsRegularContacts();
 
   } catch (err) {
     console.error(err);
@@ -2143,6 +2167,59 @@ async function openSmsConversation(contactMemberId, contactName, contactMeta = "
   }
 }
 
+function updateSmsRegularContactButton() {
+  const btn = document.getElementById("smsRegularContactBtn");
+
+  if (!btn || !smsSelectedContact?.memberId) {
+    if (btn) btn.classList.add("hidden");
+    return;
+  }
+
+  btn.classList.remove("hidden");
+
+  if (smsSelectedContact.isRegular) {
+    btn.textContent = "Quitar";
+    btn.title = "Quitar de contactos regulares";
+  } else {
+    btn.textContent = "Agregar";
+    btn.title = "Agregar a contactos regulares";
+  }
+}
+
+async function toggleSmsRegularContact() {
+  if (!CURRENT_MEMBER_ID || !smsSelectedContact?.memberId) return;
+
+  const endpoint = smsSelectedContact.isRegular
+    ? "sprivSmsRemoveContact"
+    : "sprivSmsAddContact";
+
+  try {
+    const res = await fetch(`${API_BASE}/${endpoint}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        memberId: CURRENT_MEMBER_ID,
+        contactMemberId: smsSelectedContact.memberId
+      })
+    });
+
+    const data = await res.json();
+
+    if (!data.ok) {
+      alert(data.error || "No fue posible actualizar el contacto.");
+      return;
+    }
+
+    smsSelectedContact.isRegular = !smsSelectedContact.isRegular;
+    updateSmsRegularContactButton();
+    await loadSmsRegularContacts();
+
+  } catch (err) {
+    console.error(err);
+    alert("Error al actualizar contacto regular.");
+  }
+}    
+    
 async function loadSmsMessages(scrollBottom = true) {
   if (!CURRENT_MEMBER_ID || !smsSelectedContact?.memberId) return;
 
