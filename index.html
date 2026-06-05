@@ -913,7 +913,7 @@
         <div>
           <div class="app-brand">
             <h1>SEGPRIV</h1>
-            <span class="app-version">v0.3.29</span>
+            <span class="app-version">v0.3.30</span>
           </div>
           <p>Portal operativo</p>
         </div>
@@ -2260,7 +2260,9 @@ function updateSmsRegularContactButton() {
 async function toggleSmsRegularContact() {
   if (!CURRENT_MEMBER_ID || !smsSelectedContact?.memberId) return;
 
-  const endpoint = smsSelectedContact.isRegular
+  const wasRegular = Boolean(smsSelectedContact.isRegular);
+
+  const endpoint = wasRegular
     ? "sprivSmsRemoveContact"
     : "sprivSmsAddContact";
 
@@ -2281,15 +2283,64 @@ async function toggleSmsRegularContact() {
       return;
     }
 
-    smsSelectedContact.isRegular = !smsSelectedContact.isRegular;
-    updateSmsRegularContactButton();
     await loadSmsRegularContacts();
+
+    if (wasRegular) {
+      clearSmsActiveChat();
+      return;
+    }
+
+    smsSelectedContact.isRegular = true;
+    updateSmsRegularContactButton();
 
   } catch (err) {
     console.error(err);
     alert("Error al actualizar contacto regular.");
   }
-}    
+}
+
+    function clearSmsActiveChat() {
+  smsSelectedContact = null;
+
+  const title = document.getElementById("smsChatTitle");
+  const meta = document.getElementById("smsChatMeta");
+  const chatBox = document.getElementById("smsChatBox");
+  const input = document.getElementById("smsMessageInput");
+  const sendButton = document.getElementById("smsSendButton");
+  const regularButton = document.getElementById("smsRegularContactBtn");
+  const regularSelect = document.getElementById("smsRegularContactSelect");
+
+  if (title) {
+    title.textContent = "Chat";
+  }
+
+  if (meta) {
+    meta.textContent = "Selecciona un contacto";
+  }
+
+  if (chatBox) {
+    chatBox.innerHTML = `<div class="empty">Selecciona un contacto para abrir el chat.</div>`;
+  }
+
+  if (input) {
+    input.value = "";
+    input.disabled = true;
+  }
+
+  if (sendButton) {
+    sendButton.disabled = true;
+  }
+
+  if (regularButton) {
+    regularButton.classList.add("hidden");
+    regularButton.textContent = "Agregar";
+    regularButton.title = "Agregar a contactos regulares";
+  }
+
+  if (regularSelect) {
+    regularSelect.value = "";
+  }
+}
     
 async function loadSmsMessages(scrollBottom = true) {
   if (!CURRENT_MEMBER_ID || !smsSelectedContact?.memberId) return;
