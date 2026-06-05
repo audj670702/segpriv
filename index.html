@@ -982,6 +982,120 @@
   .sms-field-label {
     font-size: 11px;
   }
+.docs-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.docs-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.docs-toolbar button {
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.docs-search {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px;
+  font-size: 13px;
+  background: white;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.docs-category-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 8px 0 10px;
+}
+
+.docs-category-btn {
+  background: #f9fafb;
+  color: var(--dark);
+  border: 1px solid var(--border);
+  padding: 6px 9px;
+  font-size: 11px;
+}
+
+.docs-category-btn.active {
+  background: var(--dark);
+  color: white;
+  border-color: var(--dark);
+}
+
+.docs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.docs-item {
+  border: 1px solid var(--border);
+  background: #f9fafb;
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.docs-item-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.docs-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.docs-meta {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+.docs-description {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.docs-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.docs-actions button {
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.docs-badge {
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  background: #e5e7eb;
+  color: var(--dark);
+  white-space: nowrap;
+}
+  
 } 
     @media (max-width: 520px) {
       .app { padding: 10px; }
@@ -1021,7 +1135,7 @@
     <div>
       <div class="app-brand">
         <h1>SEGPRIV</h1>
-        <span class="app-version">v0.3.39</span>
+        <span class="app-version">v0.3.40</span>
       </div>
       <p>Portal operativo</p>
     </div>
@@ -1075,10 +1189,10 @@
   <p>Acceso a tus cursos en SCaD.</p>
 </div>
 
-    <div class="module-card">
-      <h2>Documentos</h2>
-      <p>Próximamente.</p>
-    </div>
+<div class="module-card" onclick="openDocuments()">
+  <h2>Documentos</h2>
+  <p>Técnicos, operativos y administrativos.</p>
+</div>
 
     <div class="module-card" onclick="openSms()">
       <h2>Mensajería</h2>
@@ -1087,6 +1201,42 @@
   </div>
 </section>
 
+<section id="screenDocuments" class="screen">
+  <div class="module-title-row">
+    <div>
+      <h2>Documentos</h2>
+      <p>Técnicos, operativos y administrativos</p>
+    </div>
+
+    <div id="docsStatusLine" class="status-line module-status-inline">
+      Sin cargar
+    </div>
+  </div>
+
+  <div class="docs-card">
+    <div class="docs-toolbar">
+      <button class="secondary" onclick="goHome()">Regresar</button>
+      <button onclick="loadDocuments()">Actualizar</button>
+    </div>
+
+    <input
+      id="docsSearchInput"
+      class="docs-search"
+      type="text"
+      placeholder="Buscar documento..."
+      oninput="handleDocumentsSearch()"
+    />
+
+    <div id="docsCategoryRow" class="docs-category-row">
+      <button class="docs-category-btn active" onclick="setDocumentsCategory('TODOS')">Todos</button>
+    </div>
+  </div>
+
+  <div id="docsList" class="docs-list">
+    <div class="empty">Selecciona actualizar para cargar documentos.</div>
+  </div>
+</section>
+    
 <div id="iosInstallHelpBox" class="screen">
   <div class="module-title">
     <h2>Instalar SEGPRIV en iPhone</h2>
@@ -1298,10 +1448,14 @@ let CURRENT_EMAIL = "";
 let smsProfile = null;
 let smsSelectedContact = null;
 let smsRefreshTimer = null;
-    let smsSearchTimer = null;
+let smsSearchTimer = null;
 let smsRegularContactList = [];
 let smsPendingListData = [];
-    let deferredPrompt = null;
+let docsItems = [];
+let docsCategorias = [];
+let docsCategoriaActual = "TODOS";
+let docsSearchTimer = null;
+let deferredPrompt = null;
 
 const ua = navigator.userAgent || "";
 const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
@@ -1390,6 +1544,12 @@ async function refreshCurrentScreen() {
       return;
     }
 
+    if (screenId === "screenDocuments") {
+  await loadDocuments();
+  showToast("Documentos actualizados");
+  return;
+}
+
     if (screenId === "screenDetail") {
       if (selectedItem) {
         const currentCoberturaId = selectedItem.coberturaId;
@@ -1438,7 +1598,11 @@ function openExternalUrl(url) {
 function openCourses() {
   openExternalUrl(SCAD_MIS_CURSOS_URL);
 }
-    
+
+    function openDocuments() {
+  showScreen("screenDocuments");
+  loadDocuments();
+}
     function openServices() {
       showScreen("screenServices");
       loadServices();
@@ -2085,6 +2249,204 @@ function openSms() {
   loadSms();
 }
 
+function setDocsStatus(text, error = false) {
+  const el = document.getElementById("docsStatusLine");
+  if (!el) return;
+
+  el.textContent = text;
+  el.className = error
+    ? "status-line module-status-inline status-error"
+    : "status-line module-status-inline";
+}
+
+async function loadDocuments() {
+  resolveCurrentMember();
+
+  const root = document.getElementById("docsList");
+
+  if (!root) return;
+
+  if (!CURRENT_MEMBER_ID) {
+    docsItems = [];
+    docsCategorias = [];
+    setDocsStatus("Sin sesión", true);
+    renderDocumentsCategories();
+    root.innerHTML = `
+      <div class="empty">
+        Debes entrar desde el portal Wix de acceso SEGPRIV.
+      </div>
+    `;
+    return;
+  }
+
+  setDocsStatus("Cargando...");
+  root.innerHTML = `<div class="empty">Cargando documentos...</div>`;
+
+  try {
+    const url =
+      `${API_BASE}/sprivDocumentos?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}` +
+      `&email=${encodeURIComponent(CURRENT_EMAIL || "")}` +
+      `&t=${Date.now()}`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!data.ok) {
+      docsItems = [];
+      docsCategorias = [];
+      setDocsStatus("No disponible", true);
+      renderDocumentsCategories();
+      root.innerHTML = `<div class="empty">${escapeHtml(data.error || "No fue posible cargar documentos.")}</div>`;
+      return;
+    }
+
+    docsItems = data.items || [];
+    docsCategorias = data.categorias || [];
+    docsCategoriaActual = "TODOS";
+
+    setDocsStatus(`Documentos: ${docsItems.length}`);
+    renderDocumentsCategories();
+    renderDocumentsList();
+
+  } catch (err) {
+    console.error("Error al cargar documentos:", err);
+    docsItems = [];
+    docsCategorias = [];
+    setDocsStatus("Error", true);
+    renderDocumentsCategories();
+    root.innerHTML = `<div class="empty">Error al conectar con documentos.</div>`;
+  }
+}
+
+function renderDocumentsCategories() {
+  const row = document.getElementById("docsCategoryRow");
+  if (!row) return;
+
+  const categorias = docsCategorias || [];
+
+  row.innerHTML = `
+    <button
+      class="docs-category-btn ${docsCategoriaActual === "TODOS" ? "active" : ""}"
+      onclick="setDocumentsCategory('TODOS')"
+    >
+      Todos
+    </button>
+    ${categorias.map(cat => `
+      <button
+        class="docs-category-btn ${docsCategoriaActual === cat ? "active" : ""}"
+        onclick="setDocumentsCategory('${escapeAttr(cat)}')"
+      >
+        ${escapeHtml(cat)}
+      </button>
+    `).join("")}
+  `;
+}
+
+function setDocumentsCategory(category) {
+  docsCategoriaActual = category || "TODOS";
+  renderDocumentsCategories();
+  renderDocumentsList();
+}
+
+function handleDocumentsSearch() {
+  if (docsSearchTimer) {
+    clearTimeout(docsSearchTimer);
+  }
+
+  docsSearchTimer = setTimeout(() => {
+    renderDocumentsList();
+  }, 200);
+}
+
+function getFilteredDocuments() {
+  const input = document.getElementById("docsSearchInput");
+  const q = normalizeDocsText(input ? input.value : "");
+
+  return (docsItems || []).filter(doc => {
+    if (docsCategoriaActual && docsCategoriaActual !== "TODOS") {
+      if (String(doc.categoria || "") !== docsCategoriaActual) {
+        return false;
+      }
+    }
+
+    if (!q) return true;
+
+    const haystack = normalizeDocsText([
+      doc.titulo,
+      doc.descripcion,
+      doc.categoria,
+      doc.tipoDocumento,
+      doc.etiquetas,
+      doc.versionDocumento
+    ].filter(Boolean).join(" "));
+
+    return haystack.includes(q);
+  });
+}
+
+function renderDocumentsList() {
+  const root = document.getElementById("docsList");
+  if (!root) return;
+
+  const data = getFilteredDocuments();
+
+  if (!data.length) {
+    root.innerHTML = `<div class="empty">Sin documentos para este filtro.</div>`;
+    return;
+  }
+
+  root.innerHTML = data.map(doc => {
+    const titulo = doc.titulo || "Documento";
+    const categoria = doc.categoria || "General";
+    const tipo = doc.tipoDocumento || "";
+    const version = doc.versionDocumento ? `Versión ${doc.versionDocumento}` : "";
+    const fecha = doc.fechaActualizacion ? formatSmsDateTime(doc.fechaActualizacion) : "";
+    const meta = [categoria, tipo, version, fecha].filter(Boolean).join(" · ");
+    const url = doc.urlVistaPrevia || doc.urlDocumento || "";
+    const urlDocumento = doc.urlDocumento || url;
+    const descargable = doc.descargable === true;
+
+    return `
+      <div class="docs-item">
+        <div class="docs-item-header">
+          <div>
+            <div class="docs-title">${escapeHtml(titulo)}</div>
+            <div class="docs-meta">${escapeHtml(meta)}</div>
+          </div>
+          <span class="docs-badge">${escapeHtml(categoria)}</span>
+        </div>
+
+        ${doc.descripcion ? `
+          <div class="docs-description">${escapeHtml(doc.descripcion)}</div>
+        ` : ""}
+
+        <div class="docs-actions">
+          ${url ? `
+            <button onclick="openDocumentUrl('${escapeAttr(url)}')">Abrir</button>
+          ` : ""}
+
+          ${descargable && urlDocumento ? `
+            <button class="secondary" onclick="openDocumentUrl('${escapeAttr(urlDocumento)}')">Descargar</button>
+          ` : ""}
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function openDocumentUrl(url) {
+  if (!url) return;
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
+function normalizeDocsText(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+    
 async function loadSms() {
   resolveCurrentMember();
 
