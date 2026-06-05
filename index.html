@@ -798,6 +798,22 @@
   display: none;
 }
 
+    .sms-two-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.sms-two-columns select {
+  margin-top: 6px;
+}
+
+@media (max-width: 520px) {
+  .sms-two-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 520px) {
   .sms-row {
     align-items: stretch;
@@ -847,7 +863,7 @@
         <div>
           <div class="app-brand">
             <h1>SEGPRIV</h1>
-            <span class="app-version">v0.3.23</span>
+            <span class="app-version">v0.3.24</span>
           </div>
           <p>Portal operativo</p>
         </div>
@@ -1011,14 +1027,66 @@
     </div>
   </div>
 
-  <div id="smsMainBox" class="sms-hidden">
-    <div class="sms-card">
-      <div class="sms-chat-header">
-        <div>
-          <div class="sms-chat-title">Pendientes</div>
-          <div class="sms-contact-meta">Mensajes no leídos</div>
-        </div>
+<div id="smsMainBox" class="sms-hidden">
+
+  <div class="sms-card">
+    <div class="sms-two-columns">
+      <div>
+        <div class="sms-chat-title">Conversaciones</div>
+        <select id="smsConversationSelect" class="sms-input" onchange="selectSmsConversationFromList()">
+          <option value="">Sin conversaciones</option>
+        </select>
       </div>
+
+      <div>
+        <div class="sms-chat-title">Mensajes pendientes</div>
+        <select id="smsPendingSelect" class="sms-input" onchange="selectSmsPendingFromList()">
+          <option value="">Sin mensajes</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="sms-card">
+    <div class="sms-chat-header">
+      <div>
+        <div class="sms-chat-title" id="smsChatTitle">Chat</div>
+        <div class="sms-contact-meta" id="smsChatMeta">Selecciona una conversación o contacto</div>
+      </div>
+    </div>
+
+    <div id="smsChatBox" class="sms-chat-box">
+      <div class="empty">Selecciona una conversación para abrir el chat.</div>
+    </div>
+
+    <div class="sms-send-row">
+      <textarea id="smsMessageInput" class="sms-textarea" placeholder="Escribe un mensaje..." disabled></textarea>
+      <button id="smsSendButton" onclick="sendSmsCurrentMessage()" disabled>Enviar</button>
+    </div>
+  </div>
+
+  <div class="sms-card">
+    <div class="sms-chat-header">
+      <div>
+        <div class="sms-chat-title">Buscar contacto</div>
+        <div class="sms-contact-meta">Escribe para filtrar usuarios activos</div>
+      </div>
+    </div>
+
+    <input
+      id="smsSearchInput"
+      class="sms-input"
+      type="text"
+      placeholder="Nombre, código o dato de contacto"
+      oninput="handleSmsLiveSearch()"
+    />
+
+    <div id="smsSearchResults" class="sms-contact-list">
+      <div class="empty">Escribe para buscar contactos.</div>
+    </div>
+  </div>
+
+</div>
 
       <div id="smsPendingList" class="sms-contact-list">
         <div class="empty">Sin pendientes.</div>
@@ -1078,6 +1146,9 @@ let CURRENT_EMAIL = "";
 let smsProfile = null;
 let smsSelectedContact = null;
 let smsRefreshTimer = null;
+    let smsSearchTimer = null;
+let smsConversationList = [];
+let smsPendingListData = [];
     let deferredPrompt = null;
 
 const ua = navigator.userAgent || "";
@@ -1820,8 +1891,10 @@ if (!CURRENT_MEMBER_ID) {
       ${smsProfile.smsCode ? ` · Código: ${escapeHtml(smsProfile.smsCode)}` : ""}
     `;
 
-    mainBox.classList.remove("sms-hidden");
-    await loadSmsPending();
+mainBox.classList.remove("sms-hidden");
+
+await loadSmsConversations();
+await loadSmsPending();
 
     if (smsRefreshTimer) {
       clearInterval(smsRefreshTimer);
@@ -1845,11 +1918,80 @@ if (!CURRENT_MEMBER_ID) {
   }
 }
 
+async function loadSmsConversations() {
+  if (!CURRENT_MEMBER_ID) return;
+
+  const select = document.getElementById("smsConversationSelect");
+
+  if (!select) return;
+
+  select.innerHTML = `<option value="">Cargando...</option>`;
+
+  try {
+    const res = await fetch(
+      `${API_BASE}/sprivSmsConversations?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}`
+    );
+
+    const data = await res.json();
+
+    if (!data.ok) {
+      smsConversationList = [];
+      select.innerHTML = `<option value="">No disponible</option>`;
+      return;
+    }
+
+    smsConversationList = data.conversations || [];
+
+    if (!smsConversationList.length) {
+      select.innerHTML = `<option value="">Sin conversaciones</option>`;
+      return;
+    }
+
+    select.innerHTML = `
+      <option value="">Seleccionar</option>
+      ${smsConversationList.map(item => {
+        const label = item.nombreMostrar || "Contacto";
+        return `<option value="${escapeAttr(item.contactMemberId)}">${escapeHtml(label)}</option>`;
+      }).join("")}
+    `;
+
+  } catch (err) {
+    console.error(err);
+    smsConversationList = [];
+    select.innerHTML = `<option value="">Error</option>`;
+  }
+}
+function selectSmsConversationFromList() {
+  const select = document.getElementById("smsConversationSelect");
+  if (!select) return;
+
+  const contactMemberId = select.value;
+  if (!contactMemberId) return;
+
+  const item = smsConversationList.find(c => c.contactMemberId === contactMemberId);
+
+  if (!item) return;
+
+  const meta = [
+    item.rolSegpriv || "",
+    item.smsCode ? `Código: ${item.smsCode}` : ""
+  ].filter(Boolean).join(" · ");
+
+  openSmsConversation(
+    item.contactMemberId,
+    item.nombreMostrar || "Contacto",
+    meta
+  );
+}
+    
 async function loadSmsPending() {
   if (!CURRENT_MEMBER_ID) return;
 
-  const root = document.getElementById("smsPendingList");
-  root.innerHTML = `<div class="empty">Cargando pendientes...</div>`;
+  const select = document.getElementById("smsPendingSelect");
+
+  if (!select) return;
+
+  select.innerHTML = `<option value="">Cargando...</option>`;
 
   try {
     const res = await fetch(
@@ -1859,37 +2001,89 @@ async function loadSmsPending() {
     const data = await res.json();
 
     if (!data.ok) {
-      root.innerHTML = `<div class="empty">${escapeHtml(data.error || "No fue posible cargar pendientes.")}</div>`;
+      smsPendingListData = [];
+      select.innerHTML = `<option value="">No disponible</option>`;
       return;
     }
 
-    const contacts = data.contacts || [];
+    smsPendingListData = data.contacts || [];
 
-    if (!contacts.length) {
-      root.innerHTML = `<div class="empty">Sin pendientes.</div>`;
+    if (!smsPendingListData.length) {
+      select.innerHTML = `<option value="">Sin mensajes</option>`;
       return;
     }
 
-    root.innerHTML = contacts.map(item => {
-      const contactId = item.contactMemberId || item.senderMemberId || item.memberId || "";
-      const name = item.nombreMostrar || item.displayName || item.nombreCompleto || "Contacto";
-      const count = item.count || item.total || 0;
-      const lastMessage = item.lastMessage || "";
+    select.innerHTML = `
+      <option value="">Seleccionar</option>
+      ${smsPendingListData.map(item => {
+        const contactId = item.contactMemberId || item.senderMemberId || item.memberId || "";
+        const name = item.nombreMostrar || item.displayName || item.nombreCompleto || "Contacto";
+        const count = item.count || item.total || 0;
+        const label = count ? `${name} (${count})` : name;
 
-      return `
-        <div class="sms-contact-item" onclick="openSmsConversation('${escapeAttr(contactId)}', '${escapeAttr(name)}', '${escapeAttr(item.rolSegpriv || "")}')">
-          <div class="sms-contact-name">${escapeHtml(name)} ${count ? `<span class="badge">${count}</span>` : ""}</div>
-          <div class="sms-contact-meta">${escapeHtml(lastMessage)}</div>
-        </div>
-      `;
-    }).join("");
+        return `<option value="${escapeAttr(contactId)}">${escapeHtml(label)}</option>`;
+      }).join("")}
+    `;
 
   } catch (err) {
     console.error(err);
-    root.innerHTML = `<div class="empty">Error al cargar pendientes.</div>`;
+    smsPendingListData = [];
+    select.innerHTML = `<option value="">Error</option>`;
   }
 }
 
+    function selectSmsPendingFromList() {
+  const select = document.getElementById("smsPendingSelect");
+  if (!select) return;
+
+  const contactMemberId = select.value;
+  if (!contactMemberId) return;
+
+  const item = smsPendingListData.find(p => {
+    const id = p.contactMemberId || p.senderMemberId || p.memberId || "";
+    return id === contactMemberId;
+  });
+
+  if (!item) return;
+
+  const name = item.nombreMostrar || item.displayName || item.nombreCompleto || "Contacto";
+
+  openSmsConversation(
+    contactMemberId,
+    name,
+    item.rolSegpriv || ""
+  );
+}
+
+function handleSmsLiveSearch() {
+  const input = document.getElementById("smsSearchInput");
+  const root = document.getElementById("smsSearchResults");
+
+  if (!input || !root) return;
+
+  const q = input.value.trim();
+
+  if (smsSearchTimer) {
+    clearTimeout(smsSearchTimer);
+  }
+
+  if (!q) {
+    root.innerHTML = `<div class="empty">Escribe para buscar contactos.</div>`;
+    return;
+  }
+
+  if (q.length < 2) {
+    root.innerHTML = `<div class="empty">Escribe al menos 2 caracteres.</div>`;
+    return;
+  }
+
+  root.innerHTML = `<div class="empty">Buscando...</div>`;
+
+  smsSearchTimer = setTimeout(() => {
+    searchSmsContacts();
+  }, 350);
+}
+    
 async function searchSmsContacts() {
   if (!CURRENT_MEMBER_ID) return;
 
@@ -1981,6 +2175,7 @@ async function openSmsConversation(contactMemberId, contactName, contactMeta = "
     await markSmsCurrentRead();
     await loadSmsMessages(true);
     await loadSmsPending();
+    await loadSmsConversations();
 
   } catch (err) {
     console.error(err);
