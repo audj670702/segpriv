@@ -1006,7 +1006,7 @@
     <div>
       <div class="app-brand">
         <h1>SEGPRIV</h1>
-        <span class="app-version">v0.3.32</span>
+        <span class="app-version">v0.3.33</span>
       </div>
       <p>Portal operativo</p>
     </div>
@@ -2703,6 +2703,7 @@ function setPwaInstallStatus(text) {
 function showInstallButton() {
   const btn = document.getElementById("btnInstallPwa");
   if (!btn) return;
+
   btn.classList.remove("hidden");
   btn.classList.add("installPromptPulse");
   btn.disabled = false;
@@ -2711,6 +2712,7 @@ function showInstallButton() {
 function hideInstallButton() {
   const btn = document.getElementById("btnInstallPwa");
   if (!btn) return;
+
   btn.classList.add("hidden");
   btn.classList.remove("installPromptPulse");
   btn.disabled = false;
@@ -2726,23 +2728,24 @@ function hideIosHelpButton() {
   if (btn) btn.classList.add("hidden");
 }
 
-if (isStandalone) {
-  setPwaInstallStatus("App instalada");
-  hideInstallButton();
-  hideIosHelpButton();
-  return;
-}
+function initSegprivInstallFlow() {
+  if (isStandalone) {
+    setPwaInstallStatus("App instalada");
+    hideInstallButton();
+    hideIosHelpButton();
+    return;
+  }
 
-if (isIOS) {
+  if (isIOS) {
+    setPwaInstallStatus("No instalada");
+    hideInstallButton();
+    showIosHelpButton();
+    return;
+  }
+
   setPwaInstallStatus("No instalada");
   hideInstallButton();
-  showIosHelpButton();
-  return;
-}
-
-setPwaInstallStatus("No instalada");
-hideInstallButton();
-hideIosHelpButton();
+  hideIosHelpButton();
 
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
@@ -2750,8 +2753,8 @@ hideIosHelpButton();
 
     if (isIOS || isStandalone) return;
 
-setPwaInstallStatus("No instalada");
-showInstallButton();
+    setPwaInstallStatus("No instalada");
+    showInstallButton();
   });
 
   window.addEventListener("appinstalled", () => {
@@ -2784,12 +2787,12 @@ async function installSegprivPwa() {
       setPwaInstallStatus("Instalando...");
       hideInstallButton();
     } else {
-      setPwaInstallStatus("App instalable");
+      setPwaInstallStatus("No instalada");
       showInstallButton();
     }
   } catch (err) {
     console.warn("SEGPRIV PWA: error al instalar:", err);
-    setPwaInstallStatus("App instalable");
+    setPwaInstallStatus("No instalada");
     showInstallButton();
   } finally {
     deferredPrompt = null;
