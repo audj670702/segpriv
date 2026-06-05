@@ -863,7 +863,7 @@
         <div>
           <div class="app-brand">
             <h1>SEGPRIV</h1>
-            <span class="app-version">v0.3.24</span>
+            <span class="app-version">v0.3.25</span>
           </div>
           <p>Portal operativo</p>
         </div>
@@ -1004,7 +1004,7 @@
       <div id="detailBox"></div>
     </section>
 
-        <section id="screenSms" class="screen">
+<section id="screenSms" class="screen">
   <div class="module-title-row">
     <div>
       <h2>Mensajería</h2>
@@ -1017,108 +1017,45 @@
   </div>
 
   <div class="sms-card">
-<div class="toolbar" style="margin-top:0;">
-  <button class="secondary" onclick="goHome()">Regresar</button>
-  <button onclick="loadSms()">Actualizar</button>
-</div>
+    <div class="toolbar" style="margin-top:0;">
+      <button class="secondary" onclick="goHome()">Regresar</button>
+      <button onclick="loadSms()">Actualizar</button>
+    </div>
 
     <div id="smsProfileBox" class="status-line">
       Validando usuario SMS...
     </div>
   </div>
 
-<div id="smsMainBox" class="sms-hidden">
-
-  <div class="sms-card">
-    <div class="sms-two-columns">
-      <div>
-        <div class="sms-chat-title">Conversaciones</div>
-        <select id="smsConversationSelect" class="sms-input" onchange="selectSmsConversationFromList()">
-          <option value="">Sin conversaciones</option>
-        </select>
-      </div>
-
-      <div>
-        <div class="sms-chat-title">Mensajes pendientes</div>
-        <select id="smsPendingSelect" class="sms-input" onchange="selectSmsPendingFromList()">
-          <option value="">Sin mensajes</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <div class="sms-card">
-    <div class="sms-chat-header">
-      <div>
-        <div class="sms-chat-title" id="smsChatTitle">Chat</div>
-        <div class="sms-contact-meta" id="smsChatMeta">Selecciona una conversación o contacto</div>
-      </div>
-    </div>
-
-    <div id="smsChatBox" class="sms-chat-box">
-      <div class="empty">Selecciona una conversación para abrir el chat.</div>
-    </div>
-
-    <div class="sms-send-row">
-      <textarea id="smsMessageInput" class="sms-textarea" placeholder="Escribe un mensaje..." disabled></textarea>
-      <button id="smsSendButton" onclick="sendSmsCurrentMessage()" disabled>Enviar</button>
-    </div>
-  </div>
-
-  <div class="sms-card">
-    <div class="sms-chat-header">
-      <div>
-        <div class="sms-chat-title">Buscar contacto</div>
-        <div class="sms-contact-meta">Escribe para filtrar usuarios activos</div>
-      </div>
-    </div>
-
-    <input
-      id="smsSearchInput"
-      class="sms-input"
-      type="text"
-      placeholder="Nombre, código o dato de contacto"
-      oninput="handleSmsLiveSearch()"
-    />
-
-    <div id="smsSearchResults" class="sms-contact-list">
-      <div class="empty">Escribe para buscar contactos.</div>
-    </div>
-  </div>
-
-</div>
-
-      <div id="smsPendingList" class="sms-contact-list">
-        <div class="empty">Sin pendientes.</div>
-      </div>
-    </div>
-
+  <div id="smsMainBox" class="sms-hidden">
     <div class="sms-card">
-      <div class="sms-chat-header">
+      <div class="sms-two-columns">
         <div>
-          <div class="sms-chat-title">Buscar contacto</div>
-          <div class="sms-contact-meta">Usuarios activos de la empresa</div>
+          <div class="sms-chat-title">Conversaciones</div>
+          <select id="smsConversationSelect" class="sms-input" onchange="selectSmsConversationFromList()">
+            <option value="">Sin conversaciones</option>
+          </select>
+        </div>
+
+        <div>
+          <div class="sms-chat-title">Mensajes pendientes</div>
+          <select id="smsPendingSelect" class="sms-input" onchange="selectSmsPendingFromList()">
+            <option value="">Sin mensajes</option>
+          </select>
         </div>
       </div>
-
-      <div class="sms-row">
-        <input id="smsSearchInput" class="sms-input" type="text" placeholder="Nombre, código o dato de contacto" />
-        <button onclick="searchSmsContacts()">Buscar</button>
-      </div>
-
-      <div id="smsSearchResults" class="sms-contact-list"></div>
     </div>
 
     <div class="sms-card">
       <div class="sms-chat-header">
         <div>
           <div class="sms-chat-title" id="smsChatTitle">Chat</div>
-          <div class="sms-contact-meta" id="smsChatMeta">Selecciona un contacto</div>
+          <div class="sms-contact-meta" id="smsChatMeta">Selecciona una conversación o contacto</div>
         </div>
       </div>
 
       <div id="smsChatBox" class="sms-chat-box">
-        <div class="empty">Selecciona un contacto para abrir conversación.</div>
+        <div class="empty">Selecciona una conversación para abrir el chat.</div>
       </div>
 
       <div class="sms-send-row">
@@ -1126,8 +1063,30 @@
         <button id="smsSendButton" onclick="sendSmsCurrentMessage()" disabled>Enviar</button>
       </div>
     </div>
+
+    <div class="sms-card">
+      <div class="sms-chat-header">
+        <div>
+          <div class="sms-chat-title">Buscar contacto</div>
+          <div class="sms-contact-meta">Escribe para filtrar usuarios activos</div>
+        </div>
+      </div>
+
+      <input
+        id="smsSearchInput"
+        class="sms-input"
+        type="text"
+        placeholder="Nombre, código o dato de contacto"
+        oninput="handleSmsLiveSearch()"
+      />
+
+      <div id="smsSearchResults" class="sms-contact-list">
+        <div class="empty">Escribe para buscar contactos.</div>
+      </div>
+    </div>
   </div>
 </section>
+    
   </div>
 
   <script>
