@@ -823,7 +823,7 @@
         <div>
           <div class="app-brand">
             <h1>SEGPRIV</h1>
-            <span class="app-version">v0.3.20</span>
+            <span class="app-version">v0.3.21</span>
           </div>
           <p>Portal operativo</p>
         </div>
@@ -940,10 +940,11 @@
   </div>
 
   <div class="sms-card">
-    <div class="toolbar" style="margin-top:0;">
-      <button class="secondary" onclick="goHome()">Regresar</button>
-      <button onclick="loadSms()">Actualizar</button>
-    </div>
+<div class="toolbar" style="margin-top:0;">
+  <button class="secondary" onclick="goHome()">Regresar</button>
+  <button onclick="loadSms()">Actualizar</button>
+  <button class="secondary" onclick="clearLocalSegprivSession()">Limpiar sesión</button>
+</div>
 
     <div id="smsProfileBox" class="status-line">
       Validando usuario SMS...
@@ -1626,20 +1627,52 @@ function getUrlParam(name) {
 }
 
 function resolveCurrentMember() {
-  CURRENT_MEMBER_ID =
+  const urlMemberId =
     getUrlParam("memberId") ||
     getUrlParam("memberID") ||
     getUrlParam("wixMemberId") ||
     "";
 
-  CURRENT_EMAIL =
+  const urlEmail =
     getUrlParam("email") ||
     getUrlParam("correo") ||
     "";
 
+  if (urlMemberId) {
+    CURRENT_MEMBER_ID = urlMemberId;
+    localStorage.setItem("SEGPRIV_MEMBER_ID", urlMemberId);
+  } else {
+    CURRENT_MEMBER_ID = localStorage.getItem("SEGPRIV_MEMBER_ID") || "";
+  }
+
+  if (urlEmail) {
+    CURRENT_EMAIL = urlEmail;
+    localStorage.setItem("SEGPRIV_EMAIL", urlEmail);
+  } else {
+    CURRENT_EMAIL = localStorage.getItem("SEGPRIV_EMAIL") || "";
+  }
+
   return CURRENT_MEMBER_ID;
 }
 
+function clearLocalSegprivSession() {
+  localStorage.removeItem("SEGPRIV_MEMBER_ID");
+  localStorage.removeItem("SEGPRIV_EMAIL");
+
+  CURRENT_MEMBER_ID = "";
+  CURRENT_EMAIL = "";
+  smsProfile = null;
+  smsSelectedContact = null;
+
+  if (smsRefreshTimer) {
+    clearInterval(smsRefreshTimer);
+    smsRefreshTimer = null;
+  }
+
+  alert("Sesión local SEGPRIV limpiada. Vuelve a entrar desde el portal Wix.");
+  goHome();
+}
+    
 function setSmsStatus(text, error = false) {
   const el = document.getElementById("smsStatusLine");
   if (!el) return;
@@ -1661,13 +1694,16 @@ async function loadSms() {
   const profileBox = document.getElementById("smsProfileBox");
   const mainBox = document.getElementById("smsMainBox");
 
-  if (!CURRENT_MEMBER_ID) {
-    smsProfile = null;
-    setSmsStatus("Sin sesión", true);
-    profileBox.innerHTML = "No se recibió memberId. Debes entrar desde el flujo de acceso Wix.";
-    mainBox.classList.add("sms-hidden");
-    return;
-  }
+if (!CURRENT_MEMBER_ID) {
+  smsProfile = null;
+  setSmsStatus("Sin sesión", true);
+  profileBox.innerHTML = `
+    No se recibió memberId ni existe sesión local guardada.<br>
+    Debes entrar desde el portal Wix de acceso SEGPRIV.
+  `;
+  mainBox.classList.add("sms-hidden");
+  return;
+}
 
   setSmsStatus("Validando...");
   profileBox.innerHTML = "Validando usuario SMS...";
