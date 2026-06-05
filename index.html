@@ -823,15 +823,16 @@
         <div>
           <div class="app-brand">
             <h1>SEGPRIV</h1>
-            <span class="app-version">v0.3.21</span>
+            <span class="app-version">v0.3.22</span>
           </div>
           <p>Portal operativo</p>
         </div>
 
-        <div class="topbar-actions">
-          <button class="topbar-icon-btn" onclick="goHome()" title="Inicio" aria-label="Inicio">⌂</button>
-          <button class="topbar-icon-btn" onclick="loadServices()" title="Actualizar" aria-label="Actualizar">↻</button>
-        </div>
+<div class="topbar-actions">
+  <button class="topbar-icon-btn" onclick="goHome()" title="Inicio" aria-label="Inicio">⌂</button>
+  <button class="topbar-icon-btn" onclick="loadServices()" title="Actualizar" aria-label="Actualizar">↻</button>
+  <button class="topbar-icon-btn" onclick="cerrarSesionSegpriv()" title="Cerrar sesión" aria-label="Cerrar sesión">⎋</button>
+</div>
       </div>
     </div>
 
@@ -943,7 +944,6 @@
 <div class="toolbar" style="margin-top:0;">
   <button class="secondary" onclick="goHome()">Regresar</button>
   <button onclick="loadSms()">Actualizar</button>
-  <button class="secondary" onclick="clearLocalSegprivSession()">Limpiar sesión</button>
 </div>
 
     <div id="smsProfileBox" class="status-line">
@@ -1003,8 +1003,9 @@
   </div>
 
   <script>
-    const API_BASE = "https://www.scad.mx/_functions";
-    const CLAVE_PERSONAL_PRUEBA = "JORGE";
+const API_BASE = "https://www.scad.mx/_functions";
+const SEGPRIV_ACCESS_URL = "https://www.scad.mx/sp-pwa-acceso";
+const CLAVE_PERSONAL_PRUEBA = "JORGE";
 
     let servicios = [];
     let selectedItem = null;
@@ -1655,7 +1656,13 @@ function resolveCurrentMember() {
   return CURRENT_MEMBER_ID;
 }
 
-function clearLocalSegprivSession() {
+function cerrarSesionSegpriv() {
+  const confirmar = confirm("¿Deseas cerrar sesión en SEGPRIV?");
+
+  if (!confirmar) {
+    return;
+  }
+
   localStorage.removeItem("SEGPRIV_MEMBER_ID");
   localStorage.removeItem("SEGPRIV_EMAIL");
 
@@ -1669,8 +1676,7 @@ function clearLocalSegprivSession() {
     smsRefreshTimer = null;
   }
 
-  alert("Sesión local SEGPRIV limpiada. Vuelve a entrar desde el portal Wix.");
-  goHome();
+  window.location.href = `${SEGPRIV_ACCESS_URL}?logout=1`;
 }
     
 function setSmsStatus(text, error = false) {
