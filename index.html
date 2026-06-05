@@ -1021,7 +1021,7 @@
     <div>
       <div class="app-brand">
         <h1>SEGPRIV</h1>
-        <span class="app-version">v0.3.38</span>
+        <span class="app-version">v0.3.39</span>
       </div>
       <p>Portal operativo</p>
     </div>
@@ -1070,10 +1070,10 @@
       <p>Calendario, lista y estado operativo.</p>
     </div>
 
-    <div class="module-card">
-      <h2>Mis cursos</h2>
-      <p>Próximamente.</p>
-    </div>
+<div class="module-card" onclick="openCourses()">
+  <h2>Mis cursos</h2>
+  <p>Acceso a tus cursos en SCaD.</p>
+</div>
 
     <div class="module-card">
       <h2>Documentos</h2>
@@ -1284,6 +1284,7 @@
   <script>
 const API_BASE = "https://www.scad.mx/_functions";
 const SEGPRIV_ACCESS_URL = "https://www.scad.mx/sp-pwa-acceso";
+const SCAD_MIS_CURSOS_URL = "https://www.scad.mx/mis-cursos";
 const CLAVE_PERSONAL_PRUEBA = "JORGE";
 
     let servicios = [];
@@ -1430,6 +1431,14 @@ async function refreshCurrentScreen() {
       showScreen("screenHome");
     }
 
+function openExternalUrl(url) {
+  window.location.href = url;
+}
+    
+function openCourses() {
+  openExternalUrl(SCAD_MIS_CURSOS_URL);
+}
+    
     function openServices() {
       showScreen("screenServices");
       loadServices();
