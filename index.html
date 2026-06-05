@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#111827" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="manifest" href="manifest.webmanifest" />
+<link rel="manifest" href="manifest.webmanifest?v=20260605" />
 
   <style>
     :root {
@@ -1021,7 +1021,7 @@
     <div>
       <div class="app-brand">
         <h1>SEGPRIV</h1>
-        <span class="app-version">v0.3.37</span>
+        <span class="app-version">v0.3.38</span>
       </div>
       <p>Portal operativo</p>
     </div>
@@ -1316,7 +1316,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
       try {
-        const registration = await navigator.serviceWorker.register("sw.js?v=20260604-v0323", { scope: "./" });
+        const registration = await navigator.serviceWorker.register("./sw.js?v=20260605-v2", { scope: "./" });
         if (registration && typeof registration.update === "function") {
           registration.update();
         }
