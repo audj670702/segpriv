@@ -86,11 +86,46 @@
       white-space: nowrap;
     }
 
-    .topbar-actions {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
+.app-left-block {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.logout-mini-btn {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  color: #d1d5db;
+  border: 1px solid rgba(255,255,255,0.14);
+  font-size: 15px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.logout-mini-btn:hover {
+  background: rgba(255,255,255,0.16);
+  color: white;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.install-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
     .topbar-icon-btn {
       width: 34px;
@@ -118,10 +153,61 @@
   font-size: 11px;
   font-weight: 700;
   color: #d1d5db;
-  background: rgba(255,255,255,0.12);
-  padding: 5px 8px;
-  border-radius: 999px;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
   white-space: nowrap;
+}
+
+.install-action {
+  background: transparent;
+  border: none;
+  color: #93c5fd;
+  padding: 0;
+  font-size: 11px;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+.install-action.installPromptPulse {
+  color: #ffffff;
+  text-decoration: none;
+  animation: installTextPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes installTextPulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.55; }
+  100% { opacity: 1; }
+}
+
+.app-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  background: var(--dark);
+  color: white;
+  padding: 11px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  z-index: 99999;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.22);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, bottom 0.2s ease;
+}
+
+.app-toast.show {
+  opacity: 1;
+  bottom: 26px;
+}
+
+.app-toast.error {
+  background: var(--red);
 }
 
 .installPromptPulse {
@@ -884,8 +970,12 @@
 } 
     @media (max-width: 520px) {
       .app { padding: 10px; }
-      .app-title-row h1 { font-size: 21px; }
-      .topbar-icon-btn { width: 32px; height: 32px; font-size: 16px; }
+.app-title-row h1 { font-size: 20px; }
+.topbar-icon-btn { width: 31px; height: 31px; font-size: 15px; }
+.logout-mini-btn { width: 28px; height: 28px; font-size: 14px; }
+.pwa-install-status { font-size: 10px; }
+.install-action { font-size: 10px; }
+.install-info { flex-direction: column; align-items: flex-end; gap: 1px; }
       .grid { grid-template-columns: 1fr; }
       .module-title-row { align-items: flex-start; }
       .module-status-inline { font-size: 11px; max-width: 45%; }
@@ -909,24 +999,30 @@
 <body>
   <div class="app">
     <div class="app-top">
-      <div class="app-title-row">
-        <div>
-          <div class="app-brand">
-            <h1>SEGPRIV</h1>
-            <span class="app-version">v0.3.31</span>
-          </div>
-          <p>Portal operativo</p>
-        </div>
+<div class="app-title-row">
+  <div class="app-left-block">
+    <button class="logout-mini-btn" onclick="cerrarSesionSegpriv()" title="Cerrar sesión" aria-label="Cerrar sesión">⎋</button>
 
-<div class="topbar-actions">
-  <span id="pwaInstallStatus" class="pwa-install-status">Web</span>
-  <button id="btnInstallPwa" class="topbar-icon-btn hidden" onclick="installSegprivPwa()" title="Instalar app" aria-label="Instalar app">⬇</button>
-  <button id="btnIosInstallHelp" class="topbar-icon-btn hidden" onclick="openIosInstallHelp()" title="Instalar en iPhone" aria-label="Instalar en iPhone">ⓘ</button>
-  <button class="topbar-icon-btn" onclick="goHome()" title="Inicio" aria-label="Inicio">⌂</button>
-<button class="topbar-icon-btn" onclick="refreshCurrentScreen()" title="Actualizar" aria-label="Actualizar">↻</button>
-  <button class="topbar-icon-btn" onclick="cerrarSesionSegpriv()" title="Cerrar sesión" aria-label="Cerrar sesión">⎋</button>
-</div>
+    <div>
+      <div class="app-brand">
+        <h1>SEGPRIV</h1>
+        <span class="app-version">v0.3.30</span>
       </div>
+      <p>Portal operativo</p>
+    </div>
+  </div>
+
+  <div class="topbar-actions">
+    <div class="install-info">
+      <span id="pwaInstallStatus" class="pwa-install-status">Web</span>
+      <button id="btnInstallPwa" class="install-action hidden" onclick="installSegprivPwa()" title="Instalar app" aria-label="Instalar app">Instalar app</button>
+      <button id="btnIosInstallHelp" class="install-action hidden" onclick="openIosInstallHelp()" title="Instalar en iPhone" aria-label="Instalar en iPhone">Ver tutorial</button>
+    </div>
+
+    <button class="topbar-icon-btn" onclick="goHome()" title="Inicio" aria-label="Inicio">⌂</button>
+    <button class="topbar-icon-btn" onclick="refreshCurrentScreen()" title="Actualizar" aria-label="Actualizar">↻</button>
+  </div>
+</div>
     </div>
 
 <section id="screenHome" class="screen active">
@@ -1215,41 +1311,80 @@ function getActiveScreenId() {
   return active ? active.id : "";
 }
 
-    async function refreshCurrentScreen() {
+function showToast(message, type = "normal") {
+  let toast = document.getElementById("appToast");
+
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "appToast";
+    toast.className = "app-toast";
+    document.body.appendChild(toast);
+  }
+
+  toast.textContent = message;
+  toast.className = type === "error"
+    ? "app-toast error show"
+    : "app-toast show";
+
+  clearTimeout(window.__segprivToastTimer);
+
+  window.__segprivToastTimer = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 1800);
+}
+    
+async function refreshCurrentScreen() {
   const screenId = getActiveScreenId();
 
-  if (screenId === "screenServices") {
-    await loadServices();
-    return;
-  }
+  showToast("Actualizando...");
 
-  if (screenId === "screenSms") {
-    await loadSms();
-    return;
-  }
-
-  if (screenId === "screenDetail") {
-    if (selectedItem) {
-      const currentCoberturaId = selectedItem.coberturaId;
-
+  try {
+    if (screenId === "screenServices") {
       await loadServices();
-
-      selectedItem = servicios.find(s => s.coberturaId === currentCoberturaId) || selectedItem;
-      renderDetail();
-    } else {
-      await loadServices();
-      showScreen("screenServices");
+      showToast("Servicios actualizados");
+      return;
     }
 
-    return;
-  }
+    if (screenId === "screenSms") {
+      await loadSms();
+      showToast("Mensajería actualizada");
+      return;
+    }
 
-  if (screenId === "screenHome") {
-    return;
-  }
+    if (screenId === "screenDetail") {
+      if (selectedItem) {
+        const currentCoberturaId = selectedItem.coberturaId;
 
-  if (screenId === "iosInstallHelpBox") {
-    return;
+        await loadServices();
+
+        selectedItem = servicios.find(s => s.coberturaId === currentCoberturaId) || selectedItem;
+        renderDetail();
+
+        showToast("Detalle actualizado");
+      } else {
+        await loadServices();
+        showScreen("screenServices");
+        showToast("Servicios actualizados");
+      }
+
+      return;
+    }
+
+    if (screenId === "screenHome") {
+      showToast("Inicio actualizado");
+      return;
+    }
+
+    if (screenId === "iosInstallHelpBox") {
+      showToast("Sin datos por actualizar");
+      return;
+    }
+
+    showToast("Actualizado");
+
+  } catch (err) {
+    console.error("Error al actualizar pantalla:", err);
+    showToast("No fue posible actualizar", "error");
   }
 }
     
@@ -2591,24 +2726,23 @@ function hideIosHelpButton() {
   if (btn) btn.classList.add("hidden");
 }
 
-function initSegprivInstallFlow() {
-  if (isStandalone) {
-    setPwaInstallStatus("App instalada");
-    hideInstallButton();
-    hideIosHelpButton();
-    return;
-  }
-
-  if (isIOS) {
-    setPwaInstallStatus(isSafari ? "iOS Safari" : "iOS");
-    hideInstallButton();
-    showIosHelpButton();
-    return;
-  }
-
-  setPwaInstallStatus("Web");
+if (isStandalone) {
+  setPwaInstallStatus("App instalada");
   hideInstallButton();
   hideIosHelpButton();
+  return;
+}
+
+if (isIOS) {
+  setPwaInstallStatus("No instalada");
+  hideInstallButton();
+  showIosHelpButton();
+  return;
+}
+
+setPwaInstallStatus("No instalada");
+hideInstallButton();
+hideIosHelpButton();
 
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
@@ -2616,8 +2750,8 @@ function initSegprivInstallFlow() {
 
     if (isIOS || isStandalone) return;
 
-    setPwaInstallStatus("App instalable");
-    showInstallButton();
+setPwaInstallStatus("No instalada");
+showInstallButton();
   });
 
   window.addEventListener("appinstalled", () => {
@@ -2664,7 +2798,7 @@ async function installSegprivPwa() {
 }
 
 function openIosInstallHelp() {
-  showScreen("iosInstallHelpBox");
+  window.location.href = "./tutorial-ios/";
 }
     
   </script>
