@@ -114,6 +114,23 @@
   color: white;
 }
 
+.login-mini-link {
+  margin-top: 4px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #93c5fd;
+  font-size: 11px;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.login-mini-link:hover {
+  color: #ffffff;
+}
+    
 .topbar-actions {
   display: flex;
   gap: 8px;
@@ -1132,13 +1149,24 @@
   <div class="app-left-block">
     <button class="logout-mini-btn" onclick="cerrarSesionSegpriv()" title="Cerrar sesión" aria-label="Cerrar sesión">⎋</button>
 
-    <div>
-      <div class="app-brand">
-        <h1>SEGPRIV</h1>
-        <span class="app-version">v0.3.41</span>
-      </div>
-      <p>Portal operativo</p>
-    </div>
+<div>
+  <div class="app-brand">
+    <h1>SEGPRIV</h1>
+    <span class="app-version">v0.3.42</span>
+  </div>
+
+  <p>Portal operativo</p>
+
+  <button
+    id="btnLoginSegpriv"
+    class="login-mini-link hidden"
+    onclick="iniciarSesionSegpriv()"
+    title="Iniciar sesión"
+    aria-label="Iniciar sesión"
+  >
+    Iniciar sesión
+  </button>
+</div>
   </div>
 
   <div class="topbar-actions">
@@ -1466,6 +1494,7 @@ const isStandalone =
 document.addEventListener("DOMContentLoaded", () => {
   setInitialPeriod();
   initSegprivInstallFlow();
+  resolveCurrentMember();
 
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
@@ -2258,9 +2287,28 @@ function resolveCurrentMember() {
     CURRENT_EMAIL = localStorage.getItem("SEGPRIV_EMAIL") || "";
   }
 
+  updateSessionTopbar();
+  
   return CURRENT_MEMBER_ID;
 }
 
+    function updateSessionTopbar() {
+  const loginBtn = document.getElementById("btnLoginSegpriv");
+  const logoutBtn = document.querySelector(".logout-mini-btn");
+
+  if (loginBtn) {
+    loginBtn.classList.toggle("hidden", Boolean(CURRENT_MEMBER_ID));
+  }
+
+  if (logoutBtn) {
+    logoutBtn.classList.toggle("hidden", !CURRENT_MEMBER_ID);
+  }
+}
+
+function iniciarSesionSegpriv() {
+  window.location.href = SEGPRIV_ACCESS_URL;
+}
+    
 function cerrarSesionSegpriv() {
   const confirmar = confirm("¿Deseas cerrar sesión en SEGPRIV?");
 
