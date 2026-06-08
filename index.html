@@ -420,73 +420,117 @@
 
 .legend {
   display: flex;
-  gap: 6px;
-  flex-wrap: nowrap;
+  flex-direction: column;
+  gap: 7px;
   margin: 8px 0;
   background: white;
   border: 1px solid var(--border);
   border-radius: 14px;
-  padding: 8px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+  padding: 9px;
 }
 
-.legend::-webkit-scrollbar {
-  display: none;
+.legend-row {
+  display: grid;
+  gap: 6px;
+  width: 100%;
 }
 
-    .legend button {
-      background: #f9fafb;
-      color: var(--text);
-      border: 1px solid #e5e7eb;
-      padding: 5px 7px;
-      font-size: 10px;
-    }
+.legend-row-status {
+  grid-template-columns: repeat(4, 1fr);
+}
 
-    .legend button.active {
-      background: var(--dark);
-      color: white;
-    }
+.legend-row-compliance {
+  grid-template-columns: repeat(3, 1fr);
+}
 
-.legend-filter {
-  display: inline-flex;
-  flex-direction: column;
+.legend-pill {
+  width: 100%;
+  min-width: 0;
+  height: 32px;
+  background: #f9fafb;
+  color: var(--text);
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  padding: 0 8px;
+  font-size: 10.5px;
+  display: flex;
   align-items: center;
-  gap: 4px;
-}
-
-.legend-filter button {
-  min-width: auto;
-  min-height: auto;
-  display: inline-flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
+  justify-content: space-between;
+  gap: 5px;
   line-height: 1;
+}
+
+.legend-pill.active {
+  background: var(--dark);
+  color: white;
+  border-color: var(--dark);
+}
+
+.legend-left {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
 }
 
 .legend-label {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-block;
+  min-width: 0;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .legend-count {
-  display: block;
-  min-height: 12px;
-  font-size: 11px;
-  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
   color: var(--muted);
-  line-height: 1;
-  text-align: center;
+  background: rgba(17,24,39,0.06);
+  flex-shrink: 0;
 }
 
-.legend-filter.active-count .legend-count {
+.legend-pill.active .legend-count {
   color: var(--dark);
+  background: white;
+}
+
+.dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot.todos { background: var(--dark); }
+.dot.conf { background: var(--purple); }
+.dot.ruta { background: var(--orange); }
+.dot.pres { background: var(--teal); }
+.dot.asistencia { background: var(--green); }
+.dot.falta { background: var(--red); }
+.dot.observado { background: var(--yellow); }
+
+.legend-pill.active .dot.todos {
+  background: white;
+}
+
+    .legend-pill.active .dot.conf,
+.legend-pill.active .dot.ruta,
+.legend-pill.active .dot.pres,
+.legend-pill.active .dot.asistencia,
+.legend-pill.active .dot.falta,
+.legend-pill.active .dot.observado {
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.65);
 }
 
 .compliance-strip {
@@ -553,36 +597,6 @@
 .compliance-segment + .compliance-segment {
   box-shadow: inset 10px 0 14px rgba(255,255,255,0.22);
 }
-
-    .legend-split {
-      justify-content: space-between;
-      align-items: center;
-    }
-
-.legend-group {
-  display: flex;
-  gap: 5px;
-  flex-wrap: nowrap;
-  align-items: flex-start;
-  flex-shrink: 0;
-}
-
-    .legend-group-labor { margin-left: auto; }
-
-    .dot {
-      display: inline-block;
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      margin-right: 4px;
-    }
-
-    .dot.conf { background: var(--purple); }
-    .dot.ruta { background: var(--orange); }
-    .dot.pres { background: var(--teal); }
-    .dot.asistencia { background: var(--green); }
-    .dot.falta { background: var(--red); }
-    .dot.observado { background: var(--yellow); }
 
     .list {
       display: flex;
@@ -1284,33 +1298,35 @@
   font-weight: 900;
 }
 
-      .legend-split {
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
+.legend {
+  gap: 6px;
+  padding: 8px;
 }
 
-.legend-group,
-.legend-group-labor {
-  width: auto;
-  margin-left: 0;
-  flex-shrink: 0;
+.legend-row {
+  gap: 5px;
 }
 
-.legend button {
+.legend-pill {
+  height: 30px;
+  padding: 0 7px;
   font-size: 10px;
-  padding: 5px 8px;
-  white-space: nowrap;
 }
 
-.legend-filter {
-  min-width: auto;
-  flex-shrink: 0;
+.legend-left {
+  gap: 4px;
 }
 
 .legend-count {
-  font-size: 10px;
-  min-height: 10px;
+  min-width: 14px;
+  height: 15px;
+  font-size: 9.5px;
+  padding: 0 3px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
 }
       .day { min-height: 62px; }
       .mini-event { font-size: 8px; }
@@ -1329,7 +1345,7 @@
 <div>
   <div class="app-brand">
     <h1>SEGPRIV</h1>
-    <span class="app-version">v0.3.47</span>
+    <span class="app-version">v0.3.48</span>
   </div>
 
   <p>Portal operativo</p>
@@ -1512,57 +1528,64 @@
       </div>
 
 <div class="legend legend-split">
-  <div class="legend-group">
-    <div class="legend-filter">
-      <button id="filterTODOS" class="active" onclick="setStatusFilter('TODOS')">
+  <div class="legend-row legend-row-status">
+    <button id="filterTODOS" class="legend-pill active" onclick="setStatusFilter('TODOS')">
+      <span class="legend-left">
+        <span class="dot todos"></span>
         <span class="legend-label">Todos</span>
-      </button>
+      </span>
       <span id="countTODOS" class="legend-count">-</span>
-    </div>
+    </button>
 
-    <div class="legend-filter">
-      <button id="filterCONF" onclick="setStatusFilter('CONF')">
-        <span class="legend-label"><span class="dot conf"></span>CONF</span>
-      </button>
+    <button id="filterCONF" class="legend-pill" onclick="setStatusFilter('CONF')">
+      <span class="legend-left">
+        <span class="dot conf"></span>
+        <span class="legend-label">CONF</span>
+      </span>
       <span id="countCONF" class="legend-count">-</span>
-    </div>
+    </button>
 
-    <div class="legend-filter">
-      <button id="filterRUTA" onclick="setStatusFilter('RUTA')">
-        <span class="legend-label"><span class="dot ruta"></span>RUTA</span>
-      </button>
+    <button id="filterRUTA" class="legend-pill" onclick="setStatusFilter('RUTA')">
+      <span class="legend-left">
+        <span class="dot ruta"></span>
+        <span class="legend-label">RUTA</span>
+      </span>
       <span id="countRUTA" class="legend-count">-</span>
-    </div>
+    </button>
 
-    <div class="legend-filter">
-      <button id="filterPRES" onclick="setStatusFilter('PRES')">
-        <span class="legend-label"><span class="dot pres"></span>PRES</span>
-      </button>
+    <button id="filterPRES" class="legend-pill" onclick="setStatusFilter('PRES')">
+      <span class="legend-left">
+        <span class="dot pres"></span>
+        <span class="legend-label">PRES</span>
+      </span>
       <span id="countPRES" class="legend-count">-</span>
-    </div>
+    </button>
   </div>
 
-  <div class="legend-group legend-group-labor">
-    <div class="legend-filter">
-      <button id="filterASISTENCIA" onclick="setStatusFilter('ASISTENCIA')">
-        <span class="legend-label"><span class="dot asistencia"></span>Asistencia</span>
-      </button>
+  <div class="legend-row legend-row-compliance">
+    <button id="filterASISTENCIA" class="legend-pill" onclick="setStatusFilter('ASISTENCIA')">
+      <span class="legend-left">
+        <span class="dot asistencia"></span>
+        <span class="legend-label">Asistencia</span>
+      </span>
       <span id="countASISTENCIA" class="legend-count">-</span>
-    </div>
+    </button>
 
-    <div class="legend-filter">
-      <button id="filterFALTA" onclick="setStatusFilter('FALTA')">
-        <span class="legend-label"><span class="dot falta"></span>Falta</span>
-      </button>
+    <button id="filterFALTA" class="legend-pill" onclick="setStatusFilter('FALTA')">
+      <span class="legend-left">
+        <span class="dot falta"></span>
+        <span class="legend-label">Falta</span>
+      </span>
       <span id="countFALTA" class="legend-count">-</span>
-    </div>
+    </button>
 
-    <div class="legend-filter">
-      <button id="filterOBSERVADO" onclick="setStatusFilter('OBSERVADO')">
-        <span class="legend-label"><span class="dot observado"></span>Observado</span>
-      </button>
+    <button id="filterOBSERVADO" class="legend-pill" onclick="setStatusFilter('OBSERVADO')">
+      <span class="legend-left">
+        <span class="dot observado"></span>
+        <span class="legend-label">Observado</span>
+      </span>
       <span id="countOBSERVADO" class="legend-count">-</span>
-    </div>
+    </button>
   </div>
 </div>
 
@@ -2009,11 +2032,6 @@ renderComplianceSummary();
   const btn = document.getElementById(`filter${s}`);
   if (btn) {
     btn.classList.toggle("active", s === status);
-
-    const wrapper = btn.closest(".legend-filter");
-    if (wrapper) {
-      wrapper.classList.toggle("active-count", s === status);
-    }
   }
 });
 
