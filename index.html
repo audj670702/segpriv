@@ -442,15 +442,22 @@
       color: white;
     }
 
-    .legend button {
-  min-width: 54px;
-  min-height: 44px;
+.legend-filter {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
+  gap: 4px;
+}
+
+.legend-filter button {
+  min-width: auto;
+  min-height: auto;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
   justify-content: center;
   gap: 3px;
-  line-height: 1.05;
+  line-height: 1;
 }
 
 .legend-label {
@@ -463,14 +470,15 @@
 .legend-count {
   display: block;
   min-height: 12px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   color: var(--muted);
   line-height: 1;
+  text-align: center;
 }
 
-.legend button.active .legend-count {
-  color: rgba(255,255,255,0.85);
+.legend-filter.active-count .legend-count {
+  color: var(--dark);
 }
 
 .compliance-strip {
@@ -550,6 +558,18 @@
   min-width: 0;
 }
 
+.compliance-segment.conf {
+  background: var(--purple);
+}
+
+.compliance-segment.ruta {
+  background: var(--orange);
+}
+
+.compliance-segment.pres {
+  background: var(--teal);
+}
+    
 .compliance-segment.asistencia {
   background: var(--green);
 }
@@ -1279,7 +1299,7 @@
 <div>
   <div class="app-brand">
     <h1>SEGPRIV</h1>
-    <span class="app-version">v0.3.43</span>
+    <span class="app-version">v0.3.44</span>
   </div>
 
   <p>Portal operativo</p>
@@ -1463,43 +1483,61 @@
 
 <div class="legend legend-split">
   <div class="legend-group">
-    <button id="filterTODOS" class="active" onclick="setStatusFilter('TODOS')">
-      <span class="legend-label">Todos</span>
+    <div class="legend-filter">
+      <button id="filterTODOS" class="active" onclick="setStatusFilter('TODOS')">
+        <span class="legend-label">Todos</span>
+      </button>
       <span id="countTODOS" class="legend-count">-</span>
-    </button>
+    </div>
 
-    <button id="filterCONF" onclick="setStatusFilter('CONF')">
-      <span class="legend-label"><span class="dot conf"></span>CONF</span>
+    <div class="legend-filter">
+      <button id="filterCONF" onclick="setStatusFilter('CONF')">
+        <span class="legend-label"><span class="dot conf"></span>CONF</span>
+      </button>
       <span id="countCONF" class="legend-count">-</span>
-    </button>
+    </div>
 
-    <button id="filterRUTA" onclick="setStatusFilter('RUTA')">
-      <span class="legend-label"><span class="dot ruta"></span>RUTA</span>
+    <div class="legend-filter">
+      <button id="filterRUTA" onclick="setStatusFilter('RUTA')">
+        <span class="legend-label"><span class="dot ruta"></span>RUTA</span>
+      </button>
       <span id="countRUTA" class="legend-count">-</span>
-    </button>
+    </div>
 
-    <button id="filterPRES" onclick="setStatusFilter('PRES')">
-      <span class="legend-label"><span class="dot pres"></span>PRES</span>
+    <div class="legend-filter">
+      <button id="filterPRES" onclick="setStatusFilter('PRES')">
+        <span class="legend-label"><span class="dot pres"></span>PRES</span>
+      </button>
       <span id="countPRES" class="legend-count">-</span>
-    </button>
+    </div>
   </div>
 
   <div class="legend-group legend-group-labor">
-    <button id="filterASISTENCIA" onclick="setStatusFilter('ASISTENCIA')">
-      <span class="legend-label"><span class="dot asistencia"></span>Asistencia</span>
+    <div class="legend-filter">
+      <button id="filterASISTENCIA" onclick="setStatusFilter('ASISTENCIA')">
+        <span class="legend-label"><span class="dot asistencia"></span>Asistencia</span>
+      </button>
       <span id="countASISTENCIA" class="legend-count">-</span>
-    </button>
+    </div>
 
-    <button id="filterFALTA" onclick="setStatusFilter('FALTA')">
-      <span class="legend-label"><span class="dot falta"></span>Falta</span>
+    <div class="legend-filter">
+      <button id="filterFALTA" onclick="setStatusFilter('FALTA')">
+        <span class="legend-label"><span class="dot falta"></span>Falta</span>
+      </button>
       <span id="countFALTA" class="legend-count">-</span>
-    </button>
+    </div>
 
-    <button id="filterOBSERVADO" onclick="setStatusFilter('OBSERVADO')">
-      <span class="legend-label"><span class="dot observado"></span>Observado</span>
+    <div class="legend-filter">
+      <button id="filterOBSERVADO" onclick="setStatusFilter('OBSERVADO')">
+        <span class="legend-label"><span class="dot observado"></span>Observado</span>
+      </button>
       <span id="countOBSERVADO" class="legend-count">-</span>
-    </button>
+    </div>
   </div>
+</div>
+
+<div id="complianceSummary" class="compliance-strip">
+  <div class="compliance-empty">Sin servicios cargados.</div>
 </div>
 
 <div id="complianceSummary" class="compliance-strip">
@@ -1937,10 +1975,17 @@ renderComplianceSummary();
     function setStatusFilter(status) {
       statusFilter = status;
 
-      ["TODOS", "CONF", "RUTA", "PRES", "ASISTENCIA", "FALTA", "OBSERVADO"].forEach(s => {
-        const btn = document.getElementById(`filter${s}`);
-        if (btn) btn.classList.toggle("active", s === status);
-      });
+["TODOS", "CONF", "RUTA", "PRES", "ASISTENCIA", "FALTA", "OBSERVADO"].forEach(s => {
+  const btn = document.getElementById(`filter${s}`);
+  if (btn) {
+    btn.classList.toggle("active", s === status);
+
+    const wrapper = btn.closest(".legend-filter");
+    if (wrapper) {
+      wrapper.classList.toggle("active-count", s === status);
+    }
+  }
+});
 
       renderViews();
     }
@@ -1998,39 +2043,33 @@ function renderComplianceSummary() {
 
   const counts = getServiceStatusCounts();
 
+  const totalPeriodo = counts.TODOS || 0;
+
+  const conf = counts.CONF || 0;
+  const ruta = counts.RUTA || 0;
+  const pres = counts.PRES || 0;
   const asistencia = counts.ASISTENCIA || 0;
   const observado = counts.OBSERVADO || 0;
   const falta = counts.FALTA || 0;
-  const totalFinal = asistencia + observado + falta;
 
-  if (!servicios.length) {
+  if (!totalPeriodo) {
     root.innerHTML = `
       <div class="compliance-empty">Sin servicios cargados.</div>
     `;
     return;
   }
 
-  if (!totalFinal) {
-    root.innerHTML = `
-      <div class="compliance-header">
-        <div class="compliance-title">Cumplimiento del periodo</div>
-        <div class="compliance-total">Finalizados: -</div>
-      </div>
-      <div class="compliance-empty">
-        Sin cumplimiento final registrado.
-      </div>
-    `;
-    return;
-  }
-
-  const asistenciaPct = (asistencia / totalFinal) * 100;
-  const observadoPct = (observado / totalFinal) * 100;
-  const faltaPct = (falta / totalFinal) * 100;
+  const confPct = (conf / totalPeriodo) * 100;
+  const rutaPct = (ruta / totalPeriodo) * 100;
+  const presPct = (pres / totalPeriodo) * 100;
+  const asistenciaPct = (asistencia / totalPeriodo) * 100;
+  const observadoPct = (observado / totalPeriodo) * 100;
+  const faltaPct = (falta / totalPeriodo) * 100;
 
   root.innerHTML = `
     <div class="compliance-header">
-      <div class="compliance-title">Cumplimiento del periodo</div>
-      <div class="compliance-total">Finalizados: ${totalFinal}</div>
+<div class="compliance-title">Cumplimiento del periodo</div>
+<div class="compliance-total">Total: ${totalPeriodo}</div>
     </div>
 
     <div class="compliance-summary">
@@ -2047,7 +2086,10 @@ function renderComplianceSummary() {
       </div>
     </div>
 
-    <div class="compliance-bar" title="Asistencia ${asistencia} · Observado ${observado} · Falta ${falta}">
+    <div class="compliance-bar" title="CONF ${conf} · RUTA ${ruta} · PRES ${pres} · Asistencia ${asistencia} · Observado ${observado} · Falta ${falta}">
+      ${conf > 0 ? `<div class="compliance-segment conf" style="width:${confPct}%"></div>` : ""}
+      ${ruta > 0 ? `<div class="compliance-segment ruta" style="width:${rutaPct}%"></div>` : ""}
+      ${pres > 0 ? `<div class="compliance-segment pres" style="width:${presPct}%"></div>` : ""}
       ${asistencia > 0 ? `<div class="compliance-segment asistencia" style="width:${asistenciaPct}%"></div>` : ""}
       ${observado > 0 ? `<div class="compliance-segment observado" style="width:${observadoPct}%"></div>` : ""}
       ${falta > 0 ? `<div class="compliance-segment falta" style="width:${faltaPct}%"></div>` : ""}
