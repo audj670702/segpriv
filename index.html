@@ -51,12 +51,79 @@
     .panel-access-toggle-icon{width:34px;height:34px;border-radius:12px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:18px}
     .panel-access-toggle-text strong{display:block;font-size:14px}.panel-access-toggle-text span{display:block;font-size:11px;color:#d1d5db;margin-top:2px}
     .panel-access-caret{font-size:16px;font-weight:900;color:#d1d5db}
-    .panel-access-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-    .control-card{min-height:96px;border-left:7px solid var(--dark)}
-    .control-card.coord{border-left-color:var(--blue)}
-    .control-card.sup{border-left-color:var(--teal)}
 
-    @media(max-width:520px){.app{padding:10px}.app-title-row h1{font-size:20px}.topbar-icon-btn{width:31px;height:31px;font-size:15px}.logout-mini-btn{width:28px;height:28px;font-size:14px}.pwa-install-status,.install-action{font-size:10px}.install-info{flex-direction:column;align-items:flex-end;gap:1px}.grid{grid-template-columns:1fr}.module-title-row{align-items:flex-start}.module-status-inline{font-size:11px;max-width:45%}.view-filter-row{flex-direction:column;align-items:stretch}.compact-view-tabs{display:flex;width:100%}.compact-view-tabs button{flex:1}.inline-period-controls{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:5px;width:100%;align-items:end}.inline-period-controls input[type="date"]{width:100%;min-width:0;font-size:10px;padding:7px 4px;text-align:center}.inline-period-controls button{min-width:38px;height:34px;padding:0 10px;font-size:0}.inline-period-controls button::before{content:"↻";font-size:16px;font-weight:900}.legend{gap:6px;padding:8px}.legend-row{gap:5px}.legend-pill{height:30px;padding:0 7px;font-size:10px}.legend-count{min-width:14px;height:15px;font-size:9.5px;padding:0 3px}.day{min-height:62px}.mini-event{font-size:8px}button{font-size:13px;padding:10px 12px}.sms-chat-box{height:360px}.sms-bubble{max-width:88%}}
+    .panel-access-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:10px;
+  align-items:stretch;
+}
+
+.control-card{
+  min-height:68px;
+  padding:12px;
+  border-left:7px solid var(--dark);
+  align-items:center;
+}
+
+.control-card h2{
+  font-size:15px;
+  line-height:1.1;
+}
+
+.control-card p{
+  display:none;
+}
+
+.control-card .module-icon{
+  width:34px;
+  height:34px;
+  border-radius:12px;
+  font-size:17px;
+}
+
+.control-card.coord{
+  border-left-color:var(--blue);
+}
+
+.control-card.sup{
+  border-left-color:var(--teal);
+}
+
+    @media(max-width:520px)
+    {.app{padding:10px}.app-title-row h1{font-size:20px}.topbar-icon-btn{width:31px;height:31px;font-size:15px}.logout-mini-btn{width:28px;height:28px;font-size:14px}.pwa-install-status,.install-action{font-size:10px}.install-info{flex-direction:column;align-items:flex-end;gap:1px}.grid{grid-template-columns:1fr}.module-title-row{align-items:flex-start}.module-status-inline{font-size:11px;max-width:45%}.view-filter-row{flex-direction:column;align-items:stretch}.compact-view-tabs{display:flex;width:100%}.compact-view-tabs button{flex:1}.inline-period-controls{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:5px;width:100%;align-items:end}.inline-period-controls input[type="date"]{width:100%;min-width:0;font-size:10px;padding:7px 4px;text-align:center}.inline-period-controls button{min-width:38px;height:34px;padding:0 10px;font-size:0}.inline-period-controls button::before{content:"↻";font-size:16px;font-weight:900}.legend{gap:6px;padding:8px}.legend-row{gap:5px}.legend-pill{height:30px;padding:0 7px;font-size:10px}.legend-count{min-width:14px;height:15px;font-size:9.5px;padding:0 3px}.day{min-height:62px}.mini-event{font-size:8px}button{font-size:13px;padding:10px 12px}.sms-chat-box{height:360px}.sms-bubble{max-width:88%}}
+  
+  @media(max-width:520px){
+  #panelAccessCards.panel-access-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+
+  #panelAccessCards .control-card{
+    min-height:62px;
+    padding:10px;
+    gap:8px;
+    align-items:center;
+  }
+
+  #panelAccessCards .control-card h2{
+    font-size:13px;
+    line-height:1.1;
+  }
+
+  #panelAccessCards .control-card p{
+    display:none;
+  }
+
+  #panelAccessCards .control-card .module-icon{
+    width:30px;
+    height:30px;
+    border-radius:11px;
+    font-size:15px;
+  }
+}
   </style>
 </head>
 
@@ -67,7 +134,7 @@
         <div class="app-left-block">
           <button class="logout-mini-btn" onclick="cerrarSesionSegpriv()" title="Cerrar sesión" aria-label="Cerrar sesión">⎋</button>
           <div>
-            <div class="app-brand"><h1>SEGPRIV</h1><span class="app-version">v0.3.52</span></div>
+            <div class="app-brand"><h1>SEGPRIV</h1><span class="app-version">v0.3.53</span></div>
             <p>Portal operativo</p>
             <button id="btnLoginSegpriv" class="login-mini-link hidden" onclick="iniciarSesionSegpriv()">Iniciar sesión</button>
           </div>
