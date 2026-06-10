@@ -124,6 +124,114 @@
     font-size:15px;
   }
 }
+
+    /* Home v0.3.54 - tarjetas compactas e indicador SMS */
+#screenHome > .grid .module-card{
+  min-height:76px;
+  padding:13px 14px;
+  align-items:center;
+}
+
+#screenHome > .grid .module-card h2{
+  font-size:16px;
+  line-height:1.15;
+}
+
+#screenHome > .grid .module-card p{
+  margin-top:4px;
+  font-size:12px;
+  line-height:1.2;
+}
+
+#screenHome > .grid .module-icon{
+  width:34px;
+  height:34px;
+  border-radius:12px;
+  font-size:18px;
+}
+
+#screenHome .module-card-content{
+  flex:1;
+  min-width:0;
+}
+
+.home-card-right{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-shrink:0;
+}
+
+.home-card-caret{
+  color:var(--muted);
+  font-size:24px;
+  font-weight:900;
+  line-height:1;
+}
+
+.home-pending-badge{
+  min-width:26px;
+  height:26px;
+  padding:0 7px;
+  border-radius:999px;
+  background:var(--red);
+  color:white;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:900;
+  box-shadow:0 0 0 rgba(220,38,38,.45);
+}
+
+.home-pending-badge.flash{
+  animation:homeSmsFlash 1.05s ease-in-out infinite;
+}
+
+@keyframes homeSmsFlash{
+  0%,100%{
+    transform:scale(1);
+    box-shadow:0 0 0 0 rgba(220,38,38,.45);
+  }
+  50%{
+    transform:scale(1.08);
+    box-shadow:0 0 0 7px rgba(220,38,38,0);
+  }
+}
+
+@media(max-width:520px){
+  #screenHome > .grid .module-card{
+    min-height:64px;
+    padding:10px 12px;
+    gap:10px;
+  }
+
+  #screenHome > .grid .module-card h2{
+    font-size:15px;
+  }
+
+  #screenHome > .grid .module-card p{
+    font-size:11.5px;
+  }
+
+  #screenHome > .grid .module-icon{
+    width:30px;
+    height:30px;
+    border-radius:11px;
+    font-size:16px;
+  }
+
+  .home-pending-badge{
+    min-width:24px;
+    height:24px;
+    font-size:11px;
+  }
+
+  .home-card-caret{
+    font-size:22px;
+  }
+}
   </style>
 </head>
 
@@ -134,7 +242,7 @@
         <div class="app-left-block">
           <button class="logout-mini-btn" onclick="cerrarSesionSegpriv()" title="Cerrar sesión" aria-label="Cerrar sesión">⎋</button>
           <div>
-            <div class="app-brand"><h1>SEGPRIV</h1><span class="app-version">v0.3.53</span></div>
+            <div class="app-brand"><h1>SEGPRIV</h1><span class="app-version">v0.3.54</span></div>
             <p>Portal operativo</p>
             <button id="btnLoginSegpriv" class="login-mini-link hidden" onclick="iniciarSesionSegpriv()">Iniciar sesión</button>
           </div>
@@ -154,10 +262,17 @@
 
     <section id="screenHome" class="screen active">
       <div class="grid">
-        <div class="module-card" onclick="openSms()">
-          <span class="module-icon">💬</span>
-          <div class="module-card-content"><h2>Mensajería</h2><p>SMS interno SEGPRIV.</p></div>
-        </div>
+<div class="module-card home-sms-card" onclick="openSms()">
+  <span class="module-icon">💬</span>
+  <div class="module-card-content">
+    <h2>Mensajería</h2>
+    <p id="homeSmsPendingText">SMS interno SEGPRIV.</p>
+  </div>
+  <span class="home-card-right">
+    <span id="homeSmsPendingBadge" class="home-pending-badge hidden">0</span>
+    <span class="home-card-caret">›</span>
+  </span>
+</div>
 
         <div class="module-card" onclick="openServices()">
           <span class="module-icon">📅</span>
@@ -251,15 +366,27 @@ let pwaContext=null,pwaCanCoord=false,pwaCanSup=false,panelAccessOpen=false;
 let CURRENT_MEMBER_ID="",CURRENT_EMAIL="",smsProfile=null,smsSelectedContact=null,smsRefreshTimer=null,smsSearchTimer=null,smsRegularContactList=[],smsPendingListData=[],docsItems=[],docsCategorias=[],docsCategoriaActual="TODOS",docsSearchTimer=null,deferredPrompt=null;
 const ua=navigator.userAgent||"",isIOS=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1),isSafari=/^((?!chrome|android).)*safari/i.test(ua),isStandalone=(window.matchMedia&&window.matchMedia("(display-mode: standalone)").matches)||window.navigator.standalone===true;
 
-document.addEventListener("DOMContentLoaded",()=>{setInitialPeriod();setInitialSupervisorPeriod();initSegprivInstallFlow();resolveCurrentMember();loadPwaContext();if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const r=await navigator.serviceWorker.register("./sw.js?v=20260605-v2",{scope:"./"});if(r&&typeof r.update==="function")r.update()}catch(e){console.warn("SW no registrado:",e)}})}});
+document.addEventListener("DOMContentLoaded",()=>{setInitialPeriod();setInitialSupervisorPeriod();initSegprivInstallFlow();resolveCurrentMember();loadPwaContext();loadHomeSmsPending();if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const r=await navigator.serviceWorker.register("./sw.js?v=20260605-v2",{scope:"./"});if(r&&typeof r.update==="function")r.update()}catch(e){console.warn("SW no registrado:",e)}})}});
 function setInitialPeriod(){const today=new Date();selectedDate=today;const start=new Date(today.getFullYear(),today.getMonth(),1),end=new Date(today.getFullYear(),today.getMonth()+1,0);setInputValue("inputStartDate",toDateKey(start));setInputValue("inputEndDate",toDateKey(end));setInputValue("inputGoDate",toDateKey(today))}
 function setInitialSupervisorPeriod(){const today=new Date();supervisorSelectedDate=today;const start=new Date(today.getFullYear(),today.getMonth(),1),end=new Date(today.getFullYear(),today.getMonth()+1,0);setInputValue("supervisorInputStartDate",toDateKey(start));setInputValue("supervisorInputEndDate",toDateKey(end));setInputValue("supervisorInputGoDate",toDateKey(today))}
 function setInputValue(id,value){const el=document.getElementById(id);if(el)el.value=value}
 function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));const el=document.getElementById(id);if(el)el.classList.add("active")}
 function getActiveScreenId(){const active=document.querySelector(".screen.active");return active?active.id:""}
 function showToast(message,type="normal"){let toast=document.getElementById("appToast");if(!toast){toast=document.createElement("div");toast.id="appToast";toast.className="app-toast";document.body.appendChild(toast)}toast.textContent=message;toast.className=type==="error"?"app-toast error show":"app-toast show";clearTimeout(window.__segprivToastTimer);window.__segprivToastTimer=setTimeout(()=>toast.classList.remove("show"),1800)}
-async function refreshCurrentScreen(){const screenId=getActiveScreenId();showToast("Actualizando...");try{if(screenId==="screenServices"){await loadServices();showToast("Servicios actualizados");return}if(screenId==="screenSupervisor"){await loadSupervisorCoverages();showToast("Supervisión actualizada");return}if(screenId==="screenSupervisorDetail"){if(supervisorSelectedItem){const id=supervisorSelectedItem.coberturaId;await loadSupervisorCoverages();supervisorSelectedItem=supervisorCoverages.find(s=>s.coberturaId===id)||supervisorSelectedItem;renderSupervisorDetail();showToast("Detalle actualizado")}else{await loadSupervisorCoverages();showScreen("screenSupervisor");showToast("Supervisión actualizada")}return}if(screenId==="screenSms"){await loadSms();showToast("Mensajería actualizada");return}if(screenId==="screenDocuments"){await loadDocuments();showToast("Documentos actualizados");return}if(screenId==="screenDetail"){if(selectedItem){const id=selectedItem.coberturaId;await loadServices();selectedItem=servicios.find(s=>s.coberturaId===id)||selectedItem;renderDetail();showToast("Detalle actualizado")}else{await loadServices();showScreen("screenServices");showToast("Servicios actualizados")}return}if(screenId==="screenHome"){showToast("Inicio actualizado");return}showToast("Actualizado")}catch(err){console.error("Error al actualizar pantalla:",err);showToast("No fue posible actualizar","error")}}
-function goHome(){showScreen("screenHome");renderPanelAccess()}function openExternalUrl(url){window.location.href=url}function openCourses(){openExternalUrl(SCAD_MIS_CURSOS_URL)}function openDocuments(){showScreen("screenDocuments");loadDocuments()}function openServices(){showScreen("screenServices");loadServices()}function backToServices(){showScreen("screenServices")}function openSupervisor(){if(!pwaCanSup){showToast("Acceso SUP no autorizado","error");return}showScreen("screenSupervisor");loadSupervisorCoverages()}function backToSupervisor(){showScreen("screenSupervisor")}function openSms(){showScreen("screenSms");loadSms()}function openCoordPanel(){if(!pwaCanCoord){showToast("Acceso COORD no autorizado","error");return}const sep=SEGPRIV_COORD_URL.includes("?")?"&":"?";window.location.href=`${SEGPRIV_COORD_URL}${sep}memberId=${encodeURIComponent(CURRENT_MEMBER_ID||"")}&email=${encodeURIComponent(CURRENT_EMAIL||"")}`}function togglePanelAccess(){if(!pwaCanCoord&&!pwaCanSup)return;panelAccessOpen=!panelAccessOpen;renderPanelAccess()}
+async function refreshCurrentScreen(){const screenId=getActiveScreenId();showToast("Actualizando...");try{if(screenId==="screenServices"){await loadServices();showToast("Servicios actualizados");return}if(screenId==="screenSupervisor"){await loadSupervisorCoverages();showToast("Supervisión actualizada");return}if(screenId==="screenSupervisorDetail"){if(supervisorSelectedItem){const id=supervisorSelectedItem.coberturaId;await loadSupervisorCoverages();supervisorSelectedItem=supervisorCoverages.find(s=>s.coberturaId===id)||supervisorSelectedItem;renderSupervisorDetail();showToast("Detalle actualizado")}else{await loadSupervisorCoverages();showScreen("screenSupervisor");showToast("Supervisión actualizada")}return}if(screenId==="screenSms"){await loadSms();showToast("Mensajería actualizada");return}if(screenId==="screenDocuments"){await loadDocuments();showToast("Documentos actualizados");return}if(screenId==="screenDetail"){if(selectedItem){const id=selectedItem.coberturaId;await loadServices();selectedItem=servicios.find(s=>s.coberturaId===id)||selectedItem;renderDetail();showToast("Detalle actualizado")}else{await loadServices();showScreen("screenServices");showToast("Servicios actualizados")}return}
+if(screenId==="screenHome"){
+  await loadPwaContext();
+  await loadHomeSmsPending();
+  showToast("Inicio actualizado");
+  return;
+}showToast("Actualizado")}catch(err){console.error("Error al actualizar pantalla:",err);showToast("No fue posible actualizar","error")}}
+function goHome(){
+  showScreen("screenHome");
+  renderPanelAccess();
+  loadHomeSmsPending();
+}
+
+function openExternalUrl(url){window.location.href=url}function openCourses(){openExternalUrl(SCAD_MIS_CURSOS_URL)}function openDocuments(){showScreen("screenDocuments");loadDocuments()}function openServices(){showScreen("screenServices");loadServices()}function backToServices(){showScreen("screenServices")}function openSupervisor(){if(!pwaCanSup){showToast("Acceso SUP no autorizado","error");return}showScreen("screenSupervisor");loadSupervisorCoverages()}function backToSupervisor(){showScreen("screenSupervisor")}function openSms(){showScreen("screenSms");loadSms()}function openCoordPanel(){if(!pwaCanCoord){showToast("Acceso COORD no autorizado","error");return}const sep=SEGPRIV_COORD_URL.includes("?")?"&":"?";window.location.href=`${SEGPRIV_COORD_URL}${sep}memberId=${encodeURIComponent(CURRENT_MEMBER_ID||"")}&email=${encodeURIComponent(CURRENT_EMAIL||"")}`}function togglePanelAccess(){if(!pwaCanCoord&&!pwaCanSup)return;panelAccessOpen=!panelAccessOpen;renderPanelAccess()}
 function setStatus(text,error=false){const el=document.getElementById("statusLine");if(!el)return;el.textContent=text;el.className=error?"status-line module-status-inline status-error":"status-line module-status-inline"}
 async function loadServices(){resolveCurrentMember();if(!CURRENT_MEMBER_ID){servicios=[];setStatus("Sin sesión",true);renderViews();setHtml("calendarView","<div class='empty'>Debes entrar desde el portal Wix de acceso SEGPRIV.</div>");setHtml("listView","<div class='empty'>Debes entrar desde el portal Wix de acceso SEGPRIV.</div>");return}setStatus("Cargando servicios...");const fechaInicio=getValue("inputStartDate"),fechaFin=getValue("inputEndDate");try{const url=`${API_BASE}/sprivMisServicios?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}&email=${encodeURIComponent(CURRENT_EMAIL||"")}&fechaInicio=${encodeURIComponent(fechaInicio)}&fechaFin=${encodeURIComponent(fechaFin)}&estatus=TODOS&t=${Date.now()}`;const data=await fetchJson(url);if(!data.ok){servicios=[];setStatus(data.error||"No fue posible cargar servicios.",true);renderViews();return}servicios=data.items||[];setText("guardiaNombre",data.guardia?.nombre||"Guardia");setStatus(`Servicios encontrados: ${servicios.length}`);renderViews()}catch(err){console.error(err);servicios=[];setStatus("Error al conectar con el sistema.",true);renderViews()}}
 function setView(view){currentView=view;toggleActive("btnViewCalendar",view==="calendar");toggleActive("btnViewList",view==="list");display("calendarView",view==="calendar");display("listView",view==="list")}function setCalendarMode(mode){calendarMode=mode;renderCalendar()}function goToday(){selectedDate=new Date();setInputValue("inputGoDate",toDateKey(selectedDate));calendarMode="day";renderCalendar()}function goToSelectedDate(){const value=getValue("inputGoDate");if(!value)return;selectedDate=createLocalDate(value);calendarMode="day";renderCalendar()}function setStatusFilter(status){statusFilter=status;["TODOS","CONF","RUTA","PRES","ASISTENCIA","FALTA","OBSERVADO"].forEach(s=>toggleActive(`filter${s}`,s===status));renderViews()}
@@ -297,10 +424,66 @@ function setDocsStatus(text,error=false){const el=document.getElementById("docsS
 function renderDocumentsCategories(){const row=document.getElementById("docsCategoryRow");if(!row)return;row.innerHTML=`<button class="docs-category-btn ${docsCategoriaActual==="TODOS"?"active":""}" onclick="setDocumentsCategory('TODOS')">Todos</button>${(docsCategorias||[]).map(cat=>`<button class="docs-category-btn ${docsCategoriaActual===cat?"active":""}" onclick="setDocumentsCategory('${escapeAttr(cat)}')">${escapeHtml(cat)}</button>`).join("")}`}function setDocumentsCategory(category){docsCategoriaActual=category||"TODOS";renderDocumentsCategories();renderDocumentsList()}function handleDocumentsSearch(){clearTimeout(docsSearchTimer);docsSearchTimer=setTimeout(renderDocumentsList,200)}function getFilteredDocuments(){const q=normalizeDocsText(getValue("docsSearchInput"));return(docsItems||[]).filter(doc=>{if(docsCategoriaActual&&docsCategoriaActual!=="TODOS"&&String(doc.categoria||"")!==docsCategoriaActual)return false;if(!q)return true;const haystack=normalizeDocsText([doc.titulo,doc.descripcion,doc.categoria,doc.tipoDocumento,doc.etiquetas,doc.versionDocumento].filter(Boolean).join(" "));return haystack.includes(q)})}function renderDocumentsList(){const root=document.getElementById("docsList");if(!root)return;const data=getFilteredDocuments();if(!data.length){root.innerHTML="<div class='empty'>Sin documentos para este filtro.</div>";return}root.innerHTML=data.map(doc=>{const titulo=doc.titulo||"Documento",categoria=doc.categoria||"General",tipo=doc.tipoDocumento||"",version=doc.versionDocumento?`Versión ${doc.versionDocumento}`:"",fecha=doc.fechaActualizacion?formatSmsDateTime(doc.fechaActualizacion):"",meta=[categoria,tipo,version,fecha].filter(Boolean).join(" · "),url=doc.urlVistaPrevia||doc.urlDocumento||"",urlDocumento=doc.urlDocumento||url,descargable=doc.descargable===true;return`<div class="docs-item"><div class="docs-item-header"><div><div class="docs-title">${escapeHtml(titulo)}</div><div class="docs-meta">${escapeHtml(meta)}</div></div><span class="docs-badge">${escapeHtml(categoria)}</span></div>${doc.descripcion?`<div class="docs-description">${escapeHtml(doc.descripcion)}</div>`:""}<div class="docs-actions">${url?`<button onclick="openDocumentUrl('${escapeAttr(url)}')">Abrir</button>`:""}${descargable&&urlDocumento?`<button class="secondary" onclick="openDocumentUrl('${escapeAttr(urlDocumento)}')">Descargar</button>`:""}</div></div>`}).join("")}function openDocumentUrl(url){if(url)window.open(url,"_blank","noopener,noreferrer")}function normalizeDocsText(value){return String(value||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}
 function setSmsStatus(text,error=false){const el=document.getElementById("smsStatusLine");if(!el)return;el.textContent=text;el.className=error?"status-line module-status-inline status-error":"status-line module-status-inline"}async function loadSms(){resolveCurrentMember();const profileBox=document.getElementById("smsProfileBox"),mainBox=document.getElementById("smsMainBox");if(!CURRENT_MEMBER_ID){smsProfile=null;setSmsStatus("Sin sesión",true);if(profileBox)profileBox.innerHTML="No se recibió memberId ni existe sesión local guardada.<br>Debes entrar desde el portal Wix de acceso SEGPRIV.";if(mainBox)mainBox.classList.add("sms-hidden");return}setSmsStatus("Validando...");if(profileBox)profileBox.innerHTML="Validando usuario SMS...";try{const data=await postJson(`${API_BASE}/sprivSmsActivate`,{memberId:CURRENT_MEMBER_ID,email:CURRENT_EMAIL});if(!data.ok){smsProfile=null;setSmsStatus("No autorizado",true);if(profileBox)profileBox.innerHTML=data.message||data.error||"Usuario no autorizado para SMS SEGPRIV.";if(mainBox)mainBox.classList.add("sms-hidden");return}smsProfile=data.member;setSmsStatus("Activo");if(profileBox)profileBox.innerHTML=`<strong>${escapeHtml(smsProfile.nombreMostrar||"Usuario SEGPRIV")}</strong>Rol: ${escapeHtml(smsProfile.rolSegpriv||"STAFF")}${smsProfile.smsCode?` · Código: ${escapeHtml(smsProfile.smsCode)}`:""}`;if(mainBox)mainBox.classList.remove("sms-hidden");await loadSmsRegularContacts();await loadSmsPending();if(smsRefreshTimer)clearInterval(smsRefreshTimer);smsRefreshTimer=setInterval(()=>{if(document.getElementById("screenSms")?.classList.contains("active")){loadSmsPending();if(smsSelectedContact)loadSmsMessages(false)}},15000)}catch(err){console.error(err);smsProfile=null;setSmsStatus("Error",true);if(profileBox)profileBox.innerHTML="Error al conectar con SMS SEGPRIV.";if(mainBox)mainBox.classList.add("sms-hidden")}}
 async function loadSmsRegularContacts(){if(!CURRENT_MEMBER_ID)return;const select=document.getElementById("smsRegularContactSelect");if(!select)return;select.innerHTML="<option value=''>Cargando...</option>";try{const data=await fetchJson(`${API_BASE}/sprivSmsContacts?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}`);if(!data.ok){smsRegularContactList=[];select.innerHTML="<option value=''>No disponible</option>";return}smsRegularContactList=data.contacts||[];if(!smsRegularContactList.length){select.innerHTML="<option value=''>Sin contactos</option>";return}select.innerHTML=`<option value="">Seleccionar</option>${smsRegularContactList.map(item=>`<option value="${escapeAttr(item.contactMemberId)}">${escapeHtml(item.nombreMostrar||"Contacto")}</option>`).join("")}`}catch(err){console.error(err);smsRegularContactList=[];select.innerHTML="<option value=''>Error</option>"}}
-function selectSmsRegularContactFromList(){const select=document.getElementById("smsRegularContactSelect");if(!select||!select.value)return;const item=smsRegularContactList.find(c=>c.contactMemberId===select.value);if(!item)return;openSmsConversation(item.contactMemberId,item.nombreMostrar||"Contacto",[item.rolSegpriv||"",item.smsCode?`Código: ${item.smsCode}`:""].filter(Boolean).join(" · "),true)}async function loadSmsPending(){if(!CURRENT_MEMBER_ID)return;const select=document.getElementById("smsPendingSelect");if(!select)return;select.innerHTML="<option value=''>Cargando...</option>";try{const data=await fetchJson(`${API_BASE}/sprivSmsPending?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}&t=${Date.now()}`);if(!data.ok){smsPendingListData=[];select.innerHTML="<option value=''>No disponible</option>";return}smsPendingListData=data.contacts||data.pending||[];if(!smsPendingListData.length){select.innerHTML="<option value=''>Sin mensajes</option>";return}select.innerHTML=`<option value="">Seleccionar (${data.total||smsPendingListData.length})</option>${smsPendingListData.map(item=>{const id=item.contactMemberId||item.senderMemberId||item.memberId||"",name=item.nombreMostrar||item.displayName||item.nombreCompleto||"Contacto",count=item.count||item.total||0,last=item.lastMessage?` · ${item.lastMessage}`:"";return`<option value="${escapeAttr(id)}">${escapeHtml(count?`${name} (${count})${last}`:`${name}${last}`)}</option>`}).join("")}`}catch(err){console.error(err);smsPendingListData=[];select.innerHTML="<option value=''>Error</option>"}}
+function selectSmsRegularContactFromList(){const select=document.getElementById("smsRegularContactSelect");if(!select||!select.value)return;const item=smsRegularContactList.find(c=>c.contactMemberId===select.value);if(!item)return;openSmsConversation(item.contactMemberId,item.nombreMostrar||"Contacto",[item.rolSegpriv||"",item.smsCode?`Código: ${item.smsCode}`:""].filter(Boolean).join(" · "),true)}
+async function loadHomeSmsPending(){
+  resolveCurrentMember();
+
+  const badge = document.getElementById("homeSmsPendingBadge");
+  const text = document.getElementById("homeSmsPendingText");
+
+  if(!badge || !text) return;
+
+  if(!CURRENT_MEMBER_ID){
+    badge.classList.add("hidden");
+    badge.classList.remove("flash");
+    text.textContent = "SMS interno SEGPRIV.";
+    return;
+  }
+
+  try{
+    const data = await fetchJson(`${API_BASE}/sprivSmsPending?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}&t=${Date.now()}`);
+
+    if(!data.ok){
+      badge.classList.add("hidden");
+      badge.classList.remove("flash");
+      text.textContent = "SMS interno SEGPRIV.";
+      return;
+    }
+
+    const total = Number(data.total || 0);
+
+    if(total > 0){
+      badge.textContent = String(total);
+      badge.classList.remove("hidden");
+      badge.classList.add("flash");
+      text.textContent = total === 1 ? "1 mensaje sin leer." : `${total} mensajes sin leer.`;
+    }else{
+      badge.textContent = "0";
+      badge.classList.add("hidden");
+      badge.classList.remove("flash");
+      text.textContent = "Sin mensajes pendientes.";
+    }
+  }catch(err){
+    console.warn("No se pudo cargar indicador SMS Home:", err);
+    badge.classList.add("hidden");
+    badge.classList.remove("flash");
+    text.textContent = "SMS interno SEGPRIV.";
+  }
+}
+async function loadSmsPending(){if(!CURRENT_MEMBER_ID)return;const select=document.getElementById("smsPendingSelect");if(!select)return;select.innerHTML="<option value=''>Cargando...</option>";try{const data=await fetchJson(`${API_BASE}/sprivSmsPending?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}&t=${Date.now()}`);if(!data.ok){smsPendingListData=[];select.innerHTML="<option value=''>No disponible</option>";return}smsPendingListData=data.contacts||data.pending||[];if(!smsPendingListData.length){select.innerHTML="<option value=''>Sin mensajes</option>";return}select.innerHTML=`<option value="">Seleccionar (${data.total||smsPendingListData.length})</option>${smsPendingListData.map(item=>{const id=item.contactMemberId||item.senderMemberId||item.memberId||"",name=item.nombreMostrar||item.displayName||item.nombreCompleto||"Contacto",count=item.count||item.total||0,last=item.lastMessage?` · ${item.lastMessage}`:"";return`<option value="${escapeAttr(id)}">${escapeHtml(count?`${name} (${count})${last}`:`${name}${last}`)}</option>`}).join("")}`}catch(err){console.error(err);smsPendingListData=[];select.innerHTML="<option value=''>Error</option>"}}
 function selectSmsPendingFromList(){const select=document.getElementById("smsPendingSelect");if(!select||!select.value)return;const item=smsPendingListData.find(p=>(p.contactMemberId||p.senderMemberId||p.memberId||"")===select.value);if(!item)return;const name=item.nombreMostrar||item.displayName||item.nombreCompleto||"Contacto",isRegular=smsRegularContactList.some(c=>c.contactMemberId===select.value);openSmsConversation(select.value,name,item.rolSegpriv||"",isRegular)}function toggleSmsSearchBox(){const body=document.getElementById("smsSearchBody"),icon=document.getElementById("smsSearchToggleIcon");if(!body)return;const hidden=body.classList.contains("sms-hidden");body.classList.toggle("sms-hidden",!hidden);if(icon)icon.textContent=hidden?"▲":"▼"}function handleSmsLiveSearch(){const q=getValue("smsSearchInput"),root=document.getElementById("smsSearchResults");clearTimeout(smsSearchTimer);if(!root)return;if(!q){root.innerHTML="<div class='empty'>Escribe para buscar contactos.</div>";return}if(q.length<2){root.innerHTML="<div class='empty'>Escribe al menos 2 caracteres.</div>";return}root.innerHTML="<div class='empty'>Buscando...</div>";smsSearchTimer=setTimeout(searchSmsContacts,350)}async function searchSmsContacts(){if(!CURRENT_MEMBER_ID)return;const q=getValue("smsSearchInput"),root=document.getElementById("smsSearchResults");if(!root||!q)return;try{const data=await fetchJson(`${API_BASE}/sprivSmsSearchContacts?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}&q=${encodeURIComponent(q)}`);if(!data.ok){root.innerHTML=`<div class="empty">${escapeHtml(data.error||"No fue posible buscar contactos.")}</div>`;return}const contacts=data.contacts||[];if(!contacts.length){root.innerHTML="<div class='empty'>Sin resultados.</div>";return}root.innerHTML=contacts.map(item=>{const name=item.nombreMostrar||item.nombreCompleto||"Contacto",meta=[item.rolSegpriv||"",item.smsCode?`Código: ${item.smsCode}`:""].filter(Boolean).join(" · "),isRegular=smsRegularContactList.some(c=>c.contactMemberId===item.memberId);return`<div class="sms-contact-item" onclick="openSmsConversation('${escapeAttr(item.memberId)}','${escapeAttr(name)}','${escapeAttr(meta)}',${isRegular})"><div class="sms-contact-name">${escapeHtml(name)}</div><div class="sms-contact-meta">${escapeHtml(meta)}</div></div>`}).join("")}catch(err){console.error(err);root.innerHTML="<div class='empty'>Error al buscar contactos.</div>"}}
-async function openSmsConversation(contactMemberId,contactName,contactMeta="",isRegular=false){if(!CURRENT_MEMBER_ID||!contactMemberId)return;smsSelectedContact={memberId:contactMemberId,nombreMostrar:contactName||"Contacto",meta:contactMeta||"",isRegular:Boolean(isRegular)};setText("smsChatTitle",smsSelectedContact.nombreMostrar);setText("smsChatMeta",smsSelectedContact.meta||"Conversación interna");disable("smsMessageInput",false);disable("smsSendButton",false);updateSmsRegularContactButton();setHtml("smsChatBox","<div class='empty'>Abriendo conversación...</div>");try{const data=await postJson(`${API_BASE}/sprivSmsConversation`,{memberId:CURRENT_MEMBER_ID,contactMemberId});if(!data.ok){setHtml("smsChatBox",`<div class="empty">${escapeHtml(data.error||"No fue posible abrir conversación.")}</div>`);return}await markSmsCurrentRead();await loadSmsMessages(true);await loadSmsPending();await loadSmsRegularContacts()}catch(err){console.error(err);setHtml("smsChatBox","<div class='empty'>Error al abrir conversación.</div>")}}function updateSmsRegularContactButton(){const btn=document.getElementById("smsRegularContactBtn");if(!btn||!smsSelectedContact?.memberId){if(btn)btn.classList.add("hidden");return}btn.classList.remove("hidden");btn.textContent=smsSelectedContact.isRegular?"Quitar":"Agregar"}async function toggleSmsRegularContact(){if(!CURRENT_MEMBER_ID||!smsSelectedContact?.memberId)return;const was=Boolean(smsSelectedContact.isRegular),endpoint=was?"sprivSmsRemoveContact":"sprivSmsAddContact";try{const data=await postJson(`${API_BASE}/${endpoint}`,{memberId:CURRENT_MEMBER_ID,contactMemberId:smsSelectedContact.memberId});if(!data.ok){alert(data.error||"No fue posible actualizar el contacto.");return}await loadSmsRegularContacts();if(was){clearSmsActiveChat();return}smsSelectedContact.isRegular=true;updateSmsRegularContactButton()}catch(err){console.error(err);alert("Error al actualizar contacto regular.")}}function clearSmsActiveChat(){smsSelectedContact=null;setText("smsChatTitle","Chat");setText("smsChatMeta","Selecciona un contacto");setHtml("smsChatBox","<div class='empty'>Selecciona un contacto para abrir el chat.</div>");setInputValue("smsMessageInput","");disable("smsMessageInput",true);disable("smsSendButton",true);const btn=document.getElementById("smsRegularContactBtn");if(btn){btn.classList.add("hidden");btn.textContent="Agregar"}setInputValue("smsRegularContactSelect","")}
-async function loadSmsMessages(scrollBottom=true){if(!CURRENT_MEMBER_ID||!smsSelectedContact?.memberId)return;const root=document.getElementById("smsChatBox");try{const data=await fetchJson(`${API_BASE}/sprivSmsMessages?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}&contactMemberId=${encodeURIComponent(smsSelectedContact.memberId)}`);if(!data.ok){if(root)root.innerHTML=`<div class="empty">${escapeHtml(data.error||"No fue posible cargar mensajes.")}</div>`;return}const messages=data.messages||[];if(!messages.length){if(root)root.innerHTML="<div class='empty'>Sin mensajes todavía.</div>";return}if(root){root.innerHTML=messages.map(msg=>{const mine=msg.senderMemberId===CURRENT_MEMBER_ID,text=msg.body||msg.message||msg.text||"",date=msg.createdAt||msg._createdDate||"";return`<div class="sms-bubble ${mine?"mine":"theirs"}">${escapeHtml(text)}<span class="sms-time">${formatSmsDateTime(date)}</span></div>`}).join("");if(scrollBottom)root.scrollTop=root.scrollHeight}}catch(err){console.error(err);if(root)root.innerHTML="<div class='empty'>Error al cargar mensajes.</div>"}}async function sendSmsCurrentMessage(){if(!CURRENT_MEMBER_ID||!smsSelectedContact?.memberId)return;const text=getValue("smsMessageInput").trim();if(!text)return;disable("smsSendButton",true);try{const data=await postJson(`${API_BASE}/sprivSmsSendMessage`,{memberId:CURRENT_MEMBER_ID,contactMemberId:smsSelectedContact.memberId,message:text});if(!data.ok){alert(data.error||"No fue posible enviar el mensaje.");return}setInputValue("smsMessageInput","");await loadSmsMessages(true);await loadSmsPending()}catch(err){console.error(err);alert("Error al enviar mensaje.")}finally{disable("smsSendButton",false)}}async function markSmsCurrentRead(){if(!CURRENT_MEMBER_ID||!smsSelectedContact?.memberId)return;try{await postJson(`${API_BASE}/sprivSmsMarkRead`,{memberId:CURRENT_MEMBER_ID,contactMemberId:smsSelectedContact.memberId})}catch(err){console.warn("No se pudo marcar como leído:",err)}}
+async function openSmsConversation(contactMemberId,contactName,contactMeta="",isRegular=false){if(!CURRENT_MEMBER_ID||!contactMemberId)return;smsSelectedContact={memberId:contactMemberId,nombreMostrar:contactName||"Contacto",meta:contactMeta||"",isRegular:Boolean(isRegular)};setText("smsChatTitle",smsSelectedContact.nombreMostrar);setText("smsChatMeta",smsSelectedContact.meta||"Conversación interna");disable("smsMessageInput",false);disable("smsSendButton",false);updateSmsRegularContactButton();setHtml("smsChatBox","<div class='empty'>Abriendo conversación...</div>");try{const data=await postJson(`${API_BASE}/sprivSmsConversation`,{memberId:CURRENT_MEMBER_ID,contactMemberId});if(!data.ok){setHtml("smsChatBox",`<div class="empty">${escapeHtml(data.error||"No fue posible abrir conversación.")}</div>`);return}
+
+await markSmsCurrentRead();
+await loadSmsMessages(true);
+await loadSmsPending();
+await loadHomeSmsPending();
+await loadSmsRegularContacts();}catch(err){console.error(err);setHtml("smsChatBox","<div class='empty'>Error al abrir conversación.</div>")}}function updateSmsRegularContactButton(){const btn=document.getElementById("smsRegularContactBtn");if(!btn||!smsSelectedContact?.memberId){if(btn)btn.classList.add("hidden");return}btn.classList.remove("hidden");btn.textContent=smsSelectedContact.isRegular?"Quitar":"Agregar"}async function toggleSmsRegularContact(){if(!CURRENT_MEMBER_ID||!smsSelectedContact?.memberId)return;const was=Boolean(smsSelectedContact.isRegular),endpoint=was?"sprivSmsRemoveContact":"sprivSmsAddContact";try{const data=await postJson(`${API_BASE}/${endpoint}`,{memberId:CURRENT_MEMBER_ID,contactMemberId:smsSelectedContact.memberId});if(!data.ok){alert(data.error||"No fue posible actualizar el contacto.");return}await loadSmsRegularContacts();if(was){clearSmsActiveChat();return}smsSelectedContact.isRegular=true;updateSmsRegularContactButton()}catch(err){console.error(err);alert("Error al actualizar contacto regular.")}}function clearSmsActiveChat(){smsSelectedContact=null;setText("smsChatTitle","Chat");setText("smsChatMeta","Selecciona un contacto");setHtml("smsChatBox","<div class='empty'>Selecciona un contacto para abrir el chat.</div>");setInputValue("smsMessageInput","");disable("smsMessageInput",true);disable("smsSendButton",true);const btn=document.getElementById("smsRegularContactBtn");if(btn){btn.classList.add("hidden");btn.textContent="Agregar"}setInputValue("smsRegularContactSelect","")}
+async function loadSmsMessages(scrollBottom=true){if(!CURRENT_MEMBER_ID||!smsSelectedContact?.memberId)return;const root=document.getElementById("smsChatBox");try{const data=await fetchJson(`${API_BASE}/sprivSmsMessages?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}&contactMemberId=${encodeURIComponent(smsSelectedContact.memberId)}`);if(!data.ok){if(root)root.innerHTML=`<div class="empty">${escapeHtml(data.error||"No fue posible cargar mensajes.")}</div>`;return}const messages=data.messages||[];if(!messages.length){if(root)root.innerHTML="<div class='empty'>Sin mensajes todavía.</div>";return}if(root){root.innerHTML=messages.map(msg=>{const mine=msg.senderMemberId===CURRENT_MEMBER_ID,text=msg.body||msg.message||msg.text||"",date=msg.createdAt||msg._createdDate||"";return`<div class="sms-bubble ${mine?"mine":"theirs"}">${escapeHtml(text)}<span class="sms-time">${formatSmsDateTime(date)}</span></div>`}).join("");if(scrollBottom)root.scrollTop=root.scrollHeight}}catch(err){console.error(err);if(root)root.innerHTML="<div class='empty'>Error al cargar mensajes.</div>"}}async function sendSmsCurrentMessage(){if(!CURRENT_MEMBER_ID||!smsSelectedContact?.memberId)return;const text=getValue("smsMessageInput").trim();if(!text)return;disable("smsSendButton",true);try{const data=await postJson(`${API_BASE}/sprivSmsSendMessage`,{memberId:CURRENT_MEMBER_ID,contactMemberId:smsSelectedContact.memberId,message:text});if(!data.ok){alert(data.error||"No fue posible enviar el mensaje.");return}
+setInputValue("smsMessageInput","");
+await loadSmsMessages(true);
+await loadSmsPending();
+await loadHomeSmsPending()}catch(err){console.error(err);alert("Error al enviar mensaje.")}finally{disable("smsSendButton",false)}}async function markSmsCurrentRead(){if(!CURRENT_MEMBER_ID||!smsSelectedContact?.memberId)return;try{await postJson(`${API_BASE}/sprivSmsMarkRead`,{memberId:CURRENT_MEMBER_ID,contactMemberId:smsSelectedContact.memberId})}catch(err){console.warn("No se pudo marcar como leído:",err)}}
 function fetchJson(url){return fetch(url).then(r=>r.json())}function postJson(url,body){return fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).then(r=>r.json())}function setText(id,text){const el=document.getElementById(id);if(el)el.textContent=text}function setHtml(id,html){const el=document.getElementById(id);if(el)el.innerHTML=html}function getValue(id){const el=document.getElementById(id);return el?String(el.value||""):""}function display(id,show){const el=document.getElementById(id);if(el)el.style.display=show?"block":"none"}function toggleActive(id,active){const el=document.getElementById(id);if(el)el.classList.toggle("active",active)}function disable(id,value){const el=document.getElementById(id);if(el)el.disabled=value}function escapeHtml(value){return String(value||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}function escapeAttr(value){return escapeHtml(value).replaceAll("`","&#096;")}function formatDate(value){if(!value)return"";const parts=String(value).split("T")[0].split("-");if(parts.length!==3)return String(value);return`${parts[2]}/${parts[1]}/${parts[0]}`}function toDateKey(date){const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,"0"),d=String(date.getDate()).padStart(2,"0");return`${y}-${m}-${d}`}function createLocalDate(key){const parts=String(key||"").split("-");return new Date(Number(parts[0]),Number(parts[1])-1,Number(parts[2]))}function startOfWeek(date){const d=new Date(date);d.setDate(d.getDate()-d.getDay());d.setHours(0,0,0,0);return d}function addDays(date,days){const d=new Date(date);d.setDate(d.getDate()+days);return d}function isSameDay(a,b){return toDateKey(a)===toDateKey(b)}function monthName(index){return["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"][index]||""}function formatSmsDateTime(value){if(!value)return"";const d=new Date(value);if(isNaN(d.getTime()))return"";return d.toLocaleString("es-MX",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}
 function setPwaInstallStatus(text){setText("pwaInstallStatus",text)}function showInstallButton(){const btn=document.getElementById("btnInstallPwa");if(btn){btn.classList.remove("hidden");btn.disabled=false}}function hideInstallButton(){const btn=document.getElementById("btnInstallPwa");if(btn){btn.classList.add("hidden");btn.disabled=false}}function showIosHelpButton(){const btn=document.getElementById("btnIosInstallHelp");if(btn)btn.classList.remove("hidden")}function hideIosHelpButton(){const btn=document.getElementById("btnIosInstallHelp");if(btn)btn.classList.add("hidden")}function showInstallNote(){const note=document.getElementById("installNote");if(note)note.classList.remove("hidden")}function hideInstallNote(){const note=document.getElementById("installNote");if(note)note.classList.add("hidden")}function initSegprivInstallFlow(){window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;if(isIOS||isStandalone)return;showInstallButton();hideIosHelpButton();hideInstallNote();setPwaInstallStatus("App instalable")});window.addEventListener("appinstalled",()=>{deferredPrompt=null;setPwaInstallStatus("App instalada");hideInstallButton();hideIosHelpButton();hideInstallNote()});if(isStandalone){setPwaInstallStatus("App instalada");hideInstallButton();hideIosHelpButton();hideInstallNote();return}if(isIOS){setPwaInstallStatus(isSafari?"iOS Safari":"iOS");hideInstallButton();hideInstallNote();showIosHelpButton();return}setPwaInstallStatus("Web");hideInstallButton();hideIosHelpButton();hideInstallNote()}async function installSegprivPwa(){if(!deferredPrompt)return;const btn=document.getElementById("btnInstallPwa");if(btn)btn.disabled=true;try{await deferredPrompt.prompt();const choice=await deferredPrompt.userChoice;if(choice&&choice.outcome==="accepted"){setPwaInstallStatus("Instalando...");hideInstallButton();hideIosHelpButton();showInstallNote();setTimeout(()=>{if(!isIOS){setPwaInstallStatus("App instalada");hideInstallNote()}},60000)}else{setPwaInstallStatus("Instalación cancelada");hideInstallNote();if(btn)btn.disabled=false}}catch(err){console.warn("SEGPRIV PWA: no se pudo abrir el instalador:",err);setPwaInstallStatus("No se pudo instalar");hideInstallNote();if(btn)btn.disabled=false}finally{deferredPrompt=null}}function openIosInstallHelp(){window.location.href="./tutorial-ios/"}
   </script>
