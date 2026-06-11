@@ -125,7 +125,7 @@
   }
 }
 
-    /* Home v0.3.57 - tarjetas compactas e indicador SMS */
+    /* Home v0.3.58 - tarjetas compactas e indicador SMS */
 #screenHome > .grid .module-card{
   min-height:76px;
   padding:13px 14px;
@@ -233,7 +233,7 @@
   }
 }
 
-    /* SMS global colapsable v0.3.57 */
+    /* SMS global colapsable v0.3.58 */
 .global-sms-panel{
   margin-bottom:10px;
 }
@@ -660,9 +660,40 @@ function renderSupervisorDetail(){
   const cls=statusClass(estado);
   const rules=getSupervisorValidationRules(item);
 
-  const disabledBase=rules.puedeValidar?"":" disabled";
-  const disabledFalta=rules.puedeMarcarFalta?"":" disabled";
-  const disabledIncident=rules.puedeValidar?"":" disabled";
+  const accionesHtml = rules.puedeValidar ? `
+    <div class="detail-row">
+      <strong>Observación</strong>
+      <textarea id="supervisorObservationInput" class="sms-textarea" placeholder="Observación de supervisión...">${escapeHtml(item.observacionSupervisor||"")}</textarea>
+    </div>
+
+    <div class="toolbar">
+      <button class="success" onclick="supervisorValidateAttendance()">Asistencia</button>
+      ${rules.puedeMarcarFalta ? `<button class="warning" onclick="supervisorRegisterAbsence()">Falta</button>` : ""}
+      <button class="secondary" onclick="supervisorSaveObservation()">Guardar observación</button>
+    </div>
+
+    <div class="detail-row">
+      <strong>Incidencia</strong>
+      <select id="supervisorIncidentTypeInput" class="sms-input">
+        <option value="">Seleccionar incidencia</option>
+        <option value="RETARDO">RETARDO</option>
+        <option value="ABANDONO">ABANDONO</option>
+        <option value="RELEVO NO PRESENTADO">RELEVO NO PRESENTADO</option>
+        <option value="INCUMPLIMIENTO DE CONSIGNA">INCUMPLIMIENTO DE CONSIGNA</option>
+        <option value="INCIDENTE CON CLIENTE">INCIDENTE CON CLIENTE</option>
+        <option value="RIESGO DETECTADO">RIESGO DETECTADO</option>
+        <option value="OTRA">OTRA</option>
+      </select>
+
+      <textarea id="supervisorIncidentDescriptionInput" class="sms-textarea" placeholder="Describe la incidencia...">${escapeHtml(item.incidenciaSupervisor||"")}</textarea>
+
+      <div class="toolbar">
+        <button onclick="supervisorRegisterIncident()">Registrar incidencia</button>
+      </div>
+    </div>
+  ` : `
+    <div class="empty">Acciones de supervisión no disponibles para esta cobertura.</div>
+  `;
 
   setHtml("supervisorDetailBox",`
     <div class="detail">
@@ -682,36 +713,7 @@ function renderSupervisorDetail(){
       <div class="detail-row"><strong>Observación SUP</strong>${escapeHtml(item.observacionSupervisor||"Sin observación.")}</div>
       <div class="detail-row"><strong>Indicaciones</strong>${escapeHtml(item.indicaciones||"Sin indicaciones.")}</div>
 
-      <div class="detail-row">
-        <strong>Observación</strong>
-        <textarea id="supervisorObservationInput" class="sms-textarea" placeholder="Observación de supervisión..."${disabledBase}>${escapeHtml(item.observacionSupervisor||"")}</textarea>
-      </div>
-
-      <div class="toolbar">
-        <button class="success" onclick="supervisorValidateAttendance()"${disabledBase}>Asistencia</button>
-        <button class="warning" onclick="supervisorRegisterAbsence()"${disabledFalta}>Falta</button>
-        <button class="secondary" onclick="supervisorSaveObservation()"${disabledBase}>Guardar observación</button>
-      </div>
-
-      <div class="detail-row">
-        <strong>Incidencia</strong>
-        <select id="supervisorIncidentTypeInput" class="sms-input"${disabledIncident}>
-          <option value="">Seleccionar incidencia</option>
-          <option value="RETARDO">RETARDO</option>
-          <option value="ABANDONO">ABANDONO</option>
-          <option value="RELEVO NO PRESENTADO">RELEVO NO PRESENTADO</option>
-          <option value="INCUMPLIMIENTO DE CONSIGNA">INCUMPLIMIENTO DE CONSIGNA</option>
-          <option value="INCIDENTE CON CLIENTE">INCIDENTE CON CLIENTE</option>
-          <option value="RIESGO DETECTADO">RIESGO DETECTADO</option>
-          <option value="OTRA">OTRA</option>
-        </select>
-
-        <textarea id="supervisorIncidentDescriptionInput" class="sms-textarea" placeholder="Describe la incidencia..."${disabledIncident}>${escapeHtml(item.incidenciaSupervisor||"")}</textarea>
-
-        <div class="toolbar">
-          <button onclick="supervisorRegisterIncident()"${disabledIncident}>Registrar incidencia</button>
-        </div>
-      </div>
+      ${accionesHtml}
     </div>
   `);
 }
