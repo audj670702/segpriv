@@ -233,7 +233,7 @@
   }
 }
 
-    /* SMS global colapsable v0.3.55 */
+    /* SMS global colapsable v0.3.56 */
 .global-sms-panel{
   margin-bottom:10px;
 }
@@ -638,13 +638,247 @@ function renderSupervisorOperationalSummary(){const root=document.getElementById
 function renderSupervisorViews(){renderSupervisorComplementaryFilters();renderSupervisorStatusCounts();renderSupervisorOperationalSummary();renderSupervisorList();renderSupervisorCalendar();setSupervisorView(supervisorCurrentView)}
 function renderSupervisorList(){const root=document.getElementById("supervisorListView"),data=getFilteredSupervisorCoverages();if(!root)return;if(!data.length){root.innerHTML="<div class='empty'>Sin coberturas para este filtro.</div>";return}root.innerHTML=`<div class="list">${data.map(item=>{const estado=getSupervisorStatusForFilter(item);return`<div class="service-card ${statusClass(estado)}" onclick="openSupervisorDetail('${escapeAttr(item.coberturaId)}')"><div class="service-card-header"><div class="service-card-title">${escapeHtml(item.servicio||"Servicio")}</div><span class="badge ${statusClass(estado)}">${escapeHtml(estado||"")}</span></div><div class="service-card-sub">${formatDate(item.fecha)} · ${escapeHtml(item.horario||"")}<br>${escapeHtml(item.posicion||"")}<br>Guardia: ${escapeHtml(item.nombreGuardia||"No asignado")}</div></div>`}).join("")}</div>`}
 function renderSupervisorCalendar(){if(supervisorCalendarMode==="day"){renderSupervisorDayCalendar();return}if(supervisorCalendarMode==="week"){renderSupervisorWeekCalendar();return}renderSupervisorMonthCalendar()}function renderSupervisorCalendarModeButtons(){return`<div class="calendar-inline-modes"><button class="${supervisorCalendarMode==="day"?"active":""}" onclick="goSupervisorToday()">Hoy</button><button class="${supervisorCalendarMode==="month"?"active":""}" onclick="setSupervisorCalendarMode('month')">Mes</button><button class="${supervisorCalendarMode==="week"?"active":""}" onclick="setSupervisorCalendarMode('week')">Sem</button><button class="${supervisorCalendarMode==="day"?"active":""}" onclick="setSupervisorCalendarMode('day')">Día</button></div>`}function renderSupervisorMonthCalendar(){renderGenericMonthCalendar("supervisorCalendarView",supervisorSelectedDate,getFilteredSupervisorCoverages(),renderSupervisorCalendarModeButtons(),"selectSupervisorCalendarDate","openSupervisorDetail",true)}function renderSupervisorWeekCalendar(){renderGenericWeekCalendar("supervisorCalendarView",supervisorSelectedDate,getFilteredSupervisorCoverages(),renderSupervisorCalendarModeButtons(),"selectSupervisorCalendarDate","openSupervisorDetail",true)}function renderSupervisorDayCalendar(){renderGenericDayCalendar("supervisorCalendarView",supervisorSelectedDate,getFilteredSupervisorCoverages(),renderSupervisorCalendarModeButtons(),"openSupervisorDetail","Sin coberturas para este día.",true)}function selectSupervisorCalendarDate(key){supervisorSelectedDate=createLocalDate(key);setInputValue("supervisorInputGoDate",key);supervisorCalendarMode="day";renderSupervisorCalendar()}
-function openSupervisorDetail(id){supervisorSelectedItem=supervisorCoverages.find(s=>s.coberturaId===id);if(!supervisorSelectedItem)return;renderSupervisorDetail();showScreen("screenSupervisorDetail")}function renderSupervisorDetail(){const item=supervisorSelectedItem;if(!item)return;const estado=getSupervisorStatusForFilter(item),cls=statusClass(estado);setHtml("supervisorDetailBox",`<div class="detail"><h2>${escapeHtml(item.servicio||"Servicio")}</h2><div class="reminder ${cls}">${escapeHtml(getSupervisorReminderText(item))}</div>${renderProgressLine(item)}<div class="detail-row"><strong>Fecha</strong>${formatDate(item.fecha)}</div><div class="detail-row"><strong>Horario</strong>${escapeHtml(item.horario||"")}</div><div class="detail-row"><strong>Posición</strong>${escapeHtml(item.posicion||"")}</div><div class="detail-row"><strong>Guardia</strong>${escapeHtml(item.nombreGuardia||"No asignado")}</div><div class="detail-row"><strong>Estado guardia</strong>${escapeHtml(item.estado||"No registrado")}</div><div class="detail-row"><strong>Validación SUP</strong>${escapeHtml(item.validacionSupervisor||"NO_REGISTRADO")}</div><div class="detail-row"><strong>Observación SUP</strong>${escapeHtml(item.observacionSupervisor||"Sin observación.")}</div><div class="detail-row"><strong>Indicaciones</strong>${escapeHtml(item.indicaciones||"Sin indicaciones.")}</div><div class="detail-row"><strong>Observación</strong><textarea id="supervisorObservationInput" class="sms-textarea" placeholder="Observación de supervisión...">${escapeHtml(item.observacionSupervisor||"")}</textarea></div><div class="toolbar"><button class="success" onclick="supervisorValidateAttendance()">Asistencia</button><button class="warning" onclick="supervisorRegisterAbsence()">Falta</button><button class="secondary" onclick="supervisorSaveObservation()">Guardar observación</button></div><div class="detail-row"><strong>Incidencia</strong><select id="supervisorIncidentTypeInput" class="sms-input"><option value="">Seleccionar incidencia</option><option value="RETARDO">RETARDO</option><option value="ABANDONO">ABANDONO</option><option value="RELEVO NO PRESENTADO">RELEVO NO PRESENTADO</option><option value="INCUMPLIMIENTO DE CONSIGNA">INCUMPLIMIENTO DE CONSIGNA</option><option value="INCIDENTE CON CLIENTE">INCIDENTE CON CLIENTE</option><option value="RIESGO DETECTADO">RIESGO DETECTADO</option><option value="OTRA">OTRA</option></select><textarea id="supervisorIncidentDescriptionInput" class="sms-textarea" placeholder="Describe la incidencia...">${escapeHtml(item.incidenciaSupervisor||"")}</textarea><div class="toolbar"><button onclick="supervisorRegisterIncident()">Registrar incidencia</button></div></div></div>`)}
-function getSupervisorReminderText(item){const val=normalizeServiceStatus(item.validacionSupervisor||"");if(val==="ASISTENCIA")return"Asistencia validada por supervisión.";if(val==="FALTA")return"Falta registrada por supervisión.";if(val==="OBSERVADO")return"Cobertura observada. Revisa la incidencia registrada.";if(item.estado==="PRES")return"El guardia registró presencia. Puedes validar asistencia.";if(item.estado==="RUTA")return"El guardia está en ruta. Verifica llegada al servicio.";if(item.estado==="CONF")return"El guardia confirmó conocimiento, pero aún no registra presencia.";return"Cobertura pendiente de validación de supervisión."}function getSupervisorObservationValue(){return getValue("supervisorObservationInput").trim()}async function supervisorPostAction(endpoint,payload={}){if(!supervisorSelectedItem)return;try{const data=await postJson(`${API_BASE}/${endpoint}`,{memberId:CURRENT_MEMBER_ID,email:CURRENT_EMAIL||"",coberturaId:supervisorSelectedItem.coberturaId,...payload});if(!data.ok){alert(data.error||"No fue posible actualizar.");return}await loadSupervisorCoverages();supervisorSelectedItem=supervisorCoverages.find(s=>s.coberturaId===data.coberturaId)||supervisorSelectedItem;renderSupervisorDetail()}catch(err){console.error(err);alert("Error al conectar con supervisión.")}}async function supervisorValidateAttendance(){await supervisorPostAction("sprivSupervisorValidarAsistencia",{observacion:getSupervisorObservationValue()})}async function supervisorRegisterAbsence(){if(!confirm("¿Registrar falta para esta cobertura?"))return;await supervisorPostAction("sprivSupervisorRegistrarFalta",{observacion:getSupervisorObservationValue()})}async function supervisorSaveObservation(){await supervisorPostAction("sprivSupervisorGuardarObservacion",{observacion:getSupervisorObservationValue()})}async function supervisorRegisterIncident(){const tipo=getValue("supervisorIncidentTypeInput"),descripcion=getValue("supervisorIncidentDescriptionInput").trim();if(!tipo){alert("Selecciona el tipo de incidencia.");return}if(!descripcion){alert("Describe la incidencia.");return}await supervisorPostAction("sprivSupervisorRegistrarIncidencia",{tipoIncidencia:tipo,descripcion})}
-function renderGenericMonthCalendar(rootId,date,data,buttonsHtml,selectFn,openFn,supervisor=false){const root=document.getElementById(rootId);if(!root)return;const year=date.getFullYear(),month=date.getMonth(),firstDay=new Date(year,month,1),lastDay=new Date(year,month+1,0),startWeekDay=firstDay.getDay(),totalDays=lastDay.getDate(),names=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];let html=`<div class="calendar"><div class="calendar-header"><div class="calendar-title">${monthName(month)} ${year}</div>${buttonsHtml}</div><div class="calendar-grid">`;names.forEach(n=>html+=`<div class="day-name">${n}</div>`);for(let i=0;i<startWeekDay;i++)html+=`<div class="day"></div>`;for(let d=1;d<=totalDays;d++){const cellDate=new Date(year,month,d),key=toDateKey(cellDate),dayItems=data.filter(s=>s.fechaKey===key);html+=`<div class="day ${isSameDay(cellDate,new Date())?"today":""} ${isSameDay(cellDate,date)?"selected":""}" onclick="${selectFn}('${key}')"><div class="day-number">${d}</div>${dayItems.map(item=>{const estado=supervisor?getSupervisorStatusForFilter(item):normalizeServiceStatus(item.estado);return`<div class="mini-event ${statusClass(estado)}" onclick="event.stopPropagation(); ${openFn}('${escapeAttr(item.coberturaId)}')">${escapeHtml(item.horaInicio||"")} ${escapeHtml(item.servicio||"")} ${escapeHtml(estado||"")}</div>`}).join("")}</div>`}html+=`</div></div>`;root.innerHTML=html}function renderGenericWeekCalendar(rootId,date,data,buttonsHtml,selectFn,openFn,supervisor=false){const root=document.getElementById(rootId);if(!root)return;const start=startOfWeek(date),end=addDays(start,6),names=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];let html=`<div class="calendar"><div class="calendar-header"><div class="calendar-title">Semana ${formatDate(toDateKey(start))} - ${formatDate(toDateKey(end))}</div>${buttonsHtml}</div><div class="calendar-grid">`;names.forEach(n=>html+=`<div class="day-name">${n}</div>`);for(let i=0;i<7;i++){const cellDate=addDays(start,i),key=toDateKey(cellDate),dayItems=data.filter(s=>s.fechaKey===key);html+=`<div class="day ${isSameDay(cellDate,new Date())?"today":""} ${isSameDay(cellDate,date)?"selected":""}" onclick="${selectFn}('${key}')"><div class="day-number">${cellDate.getDate()}</div>${dayItems.map(item=>{const estado=supervisor?getSupervisorStatusForFilter(item):normalizeServiceStatus(item.estado);return`<div class="mini-event ${statusClass(estado)}" onclick="event.stopPropagation(); ${openFn}('${escapeAttr(item.coberturaId)}')">${escapeHtml(item.horaInicio||"")} ${escapeHtml(item.servicio||"")}</div>`}).join("")}</div>`}html+=`</div></div>`;root.innerHTML=html}function renderGenericDayCalendar(rootId,date,data,buttonsHtml,openFn,emptyText,supervisor=false){const root=document.getElementById(rootId);if(!root)return;const key=toDateKey(date),items=data.filter(s=>s.fechaKey===key);let html=`<div class="calendar"><div class="calendar-header"><div class="calendar-title">Día ${formatDate(key)}</div>${buttonsHtml}</div>`;if(!items.length){html+=`<div class="empty">${emptyText}</div>`}else{html+=`<div class="day-mode-list">`;items.forEach(item=>{const estado=supervisor?getSupervisorStatusForFilter(item):normalizeServiceStatus(item.estado);html+=`<div class="service-card ${statusClass(estado)}" onclick="${openFn}('${escapeAttr(item.coberturaId)}')"><div class="service-card-header"><div class="service-card-title">${escapeHtml(item.horario||"")} · ${escapeHtml(item.servicio||"Servicio")}</div><span class="badge ${statusClass(estado)}">${escapeHtml(estado||"")}</span></div><div class="service-card-sub">${escapeHtml(item.posicion||"")}${supervisor?`<br>Guardia: ${escapeHtml(item.nombreGuardia||"No asignado")}`:""}</div></div>`});html+=`</div>`}html+=`</div>`;root.innerHTML=html}
+function openSupervisorDetail(id){
+  supervisorSelectedItem=supervisorCoverages.find(s=>s.coberturaId===id);
+  if(!supervisorSelectedItem)return;
+  renderSupervisorDetail();
+  showScreen("screenSupervisorDetail");
+}
+
+function renderSupervisorDetail(){
+  const item=supervisorSelectedItem;
+  if(!item)return;
+
+  const estado=getSupervisorStatusForFilter(item);
+  const cls=statusClass(estado);
+  const rules=getSupervisorValidationRules(item);
+
+  const disabledBase=rules.puedeValidar?"":" disabled";
+  const disabledFalta=rules.puedeMarcarFalta?"":" disabled";
+  const disabledIncident=rules.puedeValidar?"":" disabled";
+
+  setHtml("supervisorDetailBox",`
+    <div class="detail">
+      <h2>${escapeHtml(item.servicio||"Servicio")}</h2>
+
+      <div class="reminder ${cls}">${escapeHtml(getSupervisorReminderText(item))}</div>
+      <div class="reminder ${rules.puedeValidar?"pres":"falto"}">${escapeHtml(rules.motivo)}</div>
+
+      ${renderProgressLine(item)}
+
+      <div class="detail-row"><strong>Fecha</strong>${formatDate(item.fecha)}</div>
+      <div class="detail-row"><strong>Horario</strong>${escapeHtml(item.horario||"")}</div>
+      <div class="detail-row"><strong>Posición</strong>${escapeHtml(item.posicion||"")}</div>
+      <div class="detail-row"><strong>Guardia</strong>${escapeHtml(item.nombreGuardia||"No asignado")}</div>
+      <div class="detail-row"><strong>Estado guardia</strong>${escapeHtml(item.estado||"No registrado")}</div>
+      <div class="detail-row"><strong>Validación SUP</strong>${escapeHtml(item.validacionSupervisor||"NO_REGISTRADO")}</div>
+      <div class="detail-row"><strong>Observación SUP</strong>${escapeHtml(item.observacionSupervisor||"Sin observación.")}</div>
+      <div class="detail-row"><strong>Indicaciones</strong>${escapeHtml(item.indicaciones||"Sin indicaciones.")}</div>
+
+      <div class="detail-row">
+        <strong>Observación</strong>
+        <textarea id="supervisorObservationInput" class="sms-textarea" placeholder="Observación de supervisión..."${disabledBase}>${escapeHtml(item.observacionSupervisor||"")}</textarea>
+      </div>
+
+      <div class="toolbar">
+        <button class="success" onclick="supervisorValidateAttendance()"${disabledBase}>Asistencia</button>
+        <button class="warning" onclick="supervisorRegisterAbsence()"${disabledFalta}>Falta</button>
+        <button class="secondary" onclick="supervisorSaveObservation()"${disabledBase}>Guardar observación</button>
+      </div>
+
+      <div class="detail-row">
+        <strong>Incidencia</strong>
+        <select id="supervisorIncidentTypeInput" class="sms-input"${disabledIncident}>
+          <option value="">Seleccionar incidencia</option>
+          <option value="RETARDO">RETARDO</option>
+          <option value="ABANDONO">ABANDONO</option>
+          <option value="RELEVO NO PRESENTADO">RELEVO NO PRESENTADO</option>
+          <option value="INCUMPLIMIENTO DE CONSIGNA">INCUMPLIMIENTO DE CONSIGNA</option>
+          <option value="INCIDENTE CON CLIENTE">INCIDENTE CON CLIENTE</option>
+          <option value="RIESGO DETECTADO">RIESGO DETECTADO</option>
+          <option value="OTRA">OTRA</option>
+        </select>
+
+        <textarea id="supervisorIncidentDescriptionInput" class="sms-textarea" placeholder="Describe la incidencia..."${disabledIncident}>${escapeHtml(item.incidenciaSupervisor||"")}</textarea>
+
+        <div class="toolbar">
+          <button onclick="supervisorRegisterIncident()"${disabledIncident}>Registrar incidencia</button>
+        </div>
+      </div>
+    </div>
+  `);
+async function supervisorValidateAttendance(){
+  if(!requireSupervisorValidationWindow("ASISTENCIA"))return;
+  await supervisorPostAction("sprivSupervisorValidarAsistencia",{observacion:getSupervisorObservationValue()});
+}
+
+async function supervisorRegisterAbsence(){
+  if(!requireSupervisorValidationWindow("FALTA"))return;
+  if(!confirm("¿Registrar falta para esta cobertura?"))return;
+  await supervisorPostAction("sprivSupervisorRegistrarFalta",{observacion:getSupervisorObservationValue()});
+}
+
+async function supervisorSaveObservation(){
+  if(!requireSupervisorValidationWindow("OBSERVACION"))return;
+  await supervisorPostAction("sprivSupervisorGuardarObservacion",{observacion:getSupervisorObservationValue()});
+}
+
+async function supervisorRegisterIncident(){
+  if(!requireSupervisorValidationWindow("INCIDENCIA"))return;
+
+  const tipo=getValue("supervisorIncidentTypeInput");
+  const descripcion=getValue("supervisorIncidentDescriptionInput").trim();
+
+  if(!tipo){
+    alert("Selecciona el tipo de incidencia.");
+    return;
+  }
+
+  if(!descripcion){
+    alert("Describe la incidencia.");
+    return;
+  }
+
+  await supervisorPostAction("sprivSupervisorRegistrarIncidencia",{tipoIncidencia:tipo,descripcion});
+}function renderGenericMonthCalendar(rootId,date,data,buttonsHtml,selectFn,openFn,supervisor=false){const root=document.getElementById(rootId);if(!root)return;const year=date.getFullYear(),month=date.getMonth(),firstDay=new Date(year,month,1),lastDay=new Date(year,month+1,0),startWeekDay=firstDay.getDay(),totalDays=lastDay.getDate(),names=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];let html=`<div class="calendar"><div class="calendar-header"><div class="calendar-title">${monthName(month)} ${year}</div>${buttonsHtml}</div><div class="calendar-grid">`;names.forEach(n=>html+=`<div class="day-name">${n}</div>`);for(let i=0;i<startWeekDay;i++)html+=`<div class="day"></div>`;for(let d=1;d<=totalDays;d++){const cellDate=new Date(year,month,d),key=toDateKey(cellDate),dayItems=data.filter(s=>s.fechaKey===key);html+=`<div class="day ${isSameDay(cellDate,new Date())?"today":""} ${isSameDay(cellDate,date)?"selected":""}" onclick="${selectFn}('${key}')"><div class="day-number">${d}</div>${dayItems.map(item=>{const estado=supervisor?getSupervisorStatusForFilter(item):normalizeServiceStatus(item.estado);return`<div class="mini-event ${statusClass(estado)}" onclick="event.stopPropagation(); ${openFn}('${escapeAttr(item.coberturaId)}')">${escapeHtml(item.horaInicio||"")} ${escapeHtml(item.servicio||"")} ${escapeHtml(estado||"")}</div>`}).join("")}</div>`}html+=`</div></div>`;root.innerHTML=html}function renderGenericWeekCalendar(rootId,date,data,buttonsHtml,selectFn,openFn,supervisor=false){const root=document.getElementById(rootId);if(!root)return;const start=startOfWeek(date),end=addDays(start,6),names=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];let html=`<div class="calendar"><div class="calendar-header"><div class="calendar-title">Semana ${formatDate(toDateKey(start))} - ${formatDate(toDateKey(end))}</div>${buttonsHtml}</div><div class="calendar-grid">`;names.forEach(n=>html+=`<div class="day-name">${n}</div>`);for(let i=0;i<7;i++){const cellDate=addDays(start,i),key=toDateKey(cellDate),dayItems=data.filter(s=>s.fechaKey===key);html+=`<div class="day ${isSameDay(cellDate,new Date())?"today":""} ${isSameDay(cellDate,date)?"selected":""}" onclick="${selectFn}('${key}')"><div class="day-number">${cellDate.getDate()}</div>${dayItems.map(item=>{const estado=supervisor?getSupervisorStatusForFilter(item):normalizeServiceStatus(item.estado);return`<div class="mini-event ${statusClass(estado)}" onclick="event.stopPropagation(); ${openFn}('${escapeAttr(item.coberturaId)}')">${escapeHtml(item.horaInicio||"")} ${escapeHtml(item.servicio||"")}</div>`}).join("")}</div>`}html+=`</div></div>`;root.innerHTML=html}function renderGenericDayCalendar(rootId,date,data,buttonsHtml,openFn,emptyText,supervisor=false){const root=document.getElementById(rootId);if(!root)return;const key=toDateKey(date),items=data.filter(s=>s.fechaKey===key);let html=`<div class="calendar"><div class="calendar-header"><div class="calendar-title">Día ${formatDate(key)}</div>${buttonsHtml}</div>`;if(!items.length){html+=`<div class="empty">${emptyText}</div>`}else{html+=`<div class="day-mode-list">`;items.forEach(item=>{const estado=supervisor?getSupervisorStatusForFilter(item):normalizeServiceStatus(item.estado);html+=`<div class="service-card ${statusClass(estado)}" onclick="${openFn}('${escapeAttr(item.coberturaId)}')"><div class="service-card-header"><div class="service-card-title">${escapeHtml(item.horario||"")} · ${escapeHtml(item.servicio||"Servicio")}</div><span class="badge ${statusClass(estado)}">${escapeHtml(estado||"")}</span></div><div class="service-card-sub">${escapeHtml(item.posicion||"")}${supervisor?`<br>Guardia: ${escapeHtml(item.nombreGuardia||"No asignado")}`:""}</div></div>`});html+=`</div>`}html+=`</div>`;root.innerHTML=html}
 function renderProgressLine(item){const inicioServicio=getServiceStartDateTime(item),ahora=new Date(),rutaDisponible=inicioServicio?ahora>=addHours(inicioServicio,-5):false,presenteDisponible=inicioServicio?ahora>=addHours(inicioServicio,-1):false;const steps=[{label:"Confirmado",value:item.fechaConfirmacionConocimiento,operational:true,lockedText:"Disponible"},{label:"En ruta",value:item.fechaEnRuta,operational:rutaDisponible,lockedText:"Disponible 5 h antes"},{label:"Presente",value:item.fechaEnServicio,operational:presenteDisponible,lockedText:"Disponible 1 h antes"}];return`<div class="guard-progress"><div class="guard-progress-track">${steps.map(step=>{const registrado=hasValidDate(step.value);let cls="locked",texto=step.lockedText;if(step.operational&&registrado){cls="registered";texto=formatProgressDateTime(step.value)}if(step.operational&&!registrado){cls="not-registered operational";texto="No registrado"}return`<div class="guard-step ${cls}"><div class="guard-step-dot"></div><div class="guard-step-label">${step.label}</div><div class="guard-step-time">${texto}</div></div>`}).join("")}</div></div>`}
 function renderCompliance(rootId,counts,emptyLabel){const root=document.getElementById(rootId);if(!root)return;const asistencia=counts.ASISTENCIA||0,observado=counts.OBSERVADO||0,falta=counts.FALTA||0,total=asistencia+observado+falta;if(!total){root.innerHTML=`<div class="compliance-bar-pro"><div class="compliance-segment sinregistro">${emptyLabel}</div></div>`;return}const asistenciaPct=Math.round(asistencia/total*100),observadoPct=Math.round(observado/total*100),faltaPct=Math.max(100-asistenciaPct-observadoPct,0);root.innerHTML=`<div class="compliance-bar-pro">${asistencia>0?`<div class="compliance-segment asistencia" style="width:${asistenciaPct}%">Asistencia ${asistenciaPct}%</div>`:""}${observado>0?`<div class="compliance-segment observado" style="width:${observadoPct}%">Observado ${observadoPct}%</div>`:""}${falta>0?`<div class="compliance-segment falta" style="width:${faltaPct}%">Falta ${faltaPct}%</div>`:""}</div>`}
-function statusClass(status){const raw=String(status||"").toLowerCase();if(raw==="prog")return"prog";if(raw==="conf")return"conf";if(raw==="ruta")return"ruta";if(raw==="pres")return"pres";if(raw==="asist")return"asist";if(raw==="asistencia")return"asistencia";if(raw==="falta")return"falta";if(raw==="falto")return"falto";if(raw==="obs")return"obs";if(raw==="observado")return"observado";return""}function hasValidDate(value){if(!value)return false;const d=new Date(value);return!isNaN(d.getTime())}function addHours(date,hours){const d=new Date(date);d.setHours(d.getHours()+hours);return d}function getServiceStartDateTime(item){if(!item||!item.fecha)return null;const fecha=String(item.fecha).split("T")[0],hora=String(item.horaInicio||"").trim();if(!fecha||!hora)return null;const fp=fecha.split("-"),hp=hora.split(":"),result=new Date(Number(fp[0]),Number(fp[1])-1,Number(fp[2]),Number(hp[0]),Number(hp[1]||0),0,0);return isNaN(result.getTime())?null:result}function formatProgressDateTime(value){if(!value)return"No registrado";const d=new Date(value);if(isNaN(d.getTime()))return"No registrado";return d.toLocaleString("es-MX",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}
-function getUrlParam(name){return new URLSearchParams(window.location.search).get(name)||""}function resolveCurrentMember(){const urlMemberId=getUrlParam("memberId")||getUrlParam("memberID")||getUrlParam("wixMemberId")||"",urlEmail=getUrlParam("email")||getUrlParam("correo")||"";if(urlMemberId){CURRENT_MEMBER_ID=urlMemberId;localStorage.setItem("SEGPRIV_MEMBER_ID",urlMemberId)}else{CURRENT_MEMBER_ID=localStorage.getItem("SEGPRIV_MEMBER_ID")||""}if(urlEmail){CURRENT_EMAIL=urlEmail;localStorage.setItem("SEGPRIV_EMAIL",urlEmail)}else{CURRENT_EMAIL=localStorage.getItem("SEGPRIV_EMAIL")||""}updateSessionTopbar();return CURRENT_MEMBER_ID}async function loadPwaContext(){resolveCurrentMember();pwaContext=null;pwaCanCoord=false;pwaCanSup=false;panelAccessOpen=false;renderPanelAccess();if(!CURRENT_MEMBER_ID)return;try{const url=`${API_BASE}/sprivPwaContext?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}&email=${encodeURIComponent(CURRENT_EMAIL||"")}&t=${Date.now()}`;const data=await fetchJson(url);if(data&&data.ok){pwaContext=data;pwaCanCoord=Boolean(data.canCoord);pwaCanSup=Boolean(data.canSup)}}catch(err){console.warn("No se pudo cargar contexto PWA:",err);pwaContext=null;pwaCanCoord=false;pwaCanSup=false}renderPanelAccess()}function renderPanelAccess(){const wrap=document.getElementById("panelAccessWrap"),cards=document.getElementById("panelAccessCards"),coord=document.getElementById("coordPanelCard"),sup=document.getElementById("supPanelCard"),caret=document.getElementById("panelAccessCaret");const hasAccess=Boolean(pwaCanCoord||pwaCanSup);if(wrap)wrap.classList.toggle("hidden",!hasAccess);if(coord)coord.classList.toggle("hidden",!pwaCanCoord);if(sup)sup.classList.toggle("hidden",!pwaCanSup);if(cards)cards.classList.toggle("hidden",!hasAccess||!panelAccessOpen);if(caret)caret.textContent=panelAccessOpen?"▲":"▼"}
+function statusClass(status){const raw=String(status||"").toLowerCase();if(raw==="req")return"";if(raw==="prog")return"prog";if(raw==="conf")return"conf";if(raw==="ruta")return"ruta";if(raw==="pres")return"pres";if(raw==="asist")return"asist";if(raw==="asistencia")return"asistencia";if(raw==="falta")return"falta";if(raw==="falto")return"falto";if(raw==="obs")return"obs";if(raw==="observado")return"observado";return""}
+function hasValidDate(value){if(!value)return false;const d=new Date(value);return!isNaN(d.getTime())}
+function addHours(date,hours){const d=new Date(date);d.setHours(d.getHours()+hours);return d}
+function addMinutes(date,minutes){const d=new Date(date);d.setMinutes(d.getMinutes()+Number(minutes||0));return d}
+
+function getServiceStartDateTime(item){
+  if(!item||!item.fecha)return null;
+  const fecha=String(item.fecha).split("T")[0];
+  const hora=String(item.horaInicio||"").trim();
+  if(!fecha||!hora)return null;
+
+  const fp=fecha.split("-");
+  const hp=hora.split(":");
+  const result=new Date(Number(fp[0]),Number(fp[1])-1,Number(fp[2]),Number(hp[0]),Number(hp[1]||0),0,0);
+  return isNaN(result.getTime())?null:result;
+}
+
+function getServiceEndDateTime(item){
+  if(!item||!item.fecha)return null;
+
+  const inicio=getServiceStartDateTime(item);
+  if(!inicio)return null;
+
+  let horaFin=String(item.horaFin||item.horaFinal||item.finTurno||"").trim();
+
+  if(!horaFin){
+    const horario=String(item.horario||"");
+    const matches=horario.match(/\d{1,2}:\d{2}/g);
+    if(matches&&matches.length>=2)horaFin=matches[1];
+  }
+
+  if(!horaFin)return null;
+
+  const fecha=String(item.fecha).split("T")[0];
+  const fp=fecha.split("-");
+  const hp=horaFin.split(":");
+  let fin=new Date(Number(fp[0]),Number(fp[1])-1,Number(fp[2]),Number(hp[0]),Number(hp[1]||0),0,0);
+
+  if(isNaN(fin.getTime()))return null;
+
+  if(fin<=inicio){
+    fin=addDays(fin,1);
+  }
+
+  return fin;
+}
+
+function getSupervisorToleranceMinutes(item){
+  const raw=item?.toleranciaMinutos??item?.minutosTolerancia??item?.toleranciaRetardo??item?.tolerancia??0;
+  const found=String(raw||"0").match(/\d+/);
+  return found?Number(found[0]):0;
+}
+
+function formatSupervisorWindowDateTime(value){
+  if(!value)return"";
+  const d=new Date(value);
+  if(isNaN(d.getTime()))return"";
+  return d.toLocaleString("es-MX",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+}
+
+function getSupervisorValidationRules(item){
+  const estadoOperativo=normalizeServiceStatus(item?.estadoCobertura||item?.estado||"");
+  const inicio=getServiceStartDateTime(item);
+  const fin=getServiceEndDateTime(item);
+  const ahora=new Date();
+
+  if(estadoOperativo==="REQ"){
+    return {
+      puedeValidar:false,
+      puedeMarcarFalta:false,
+      motivo:"Validación no disponible: la cobertura aún está en estatus REQ."
+    };
+  }
+
+  if(!inicio||!fin){
+    return {
+      puedeValidar:false,
+      puedeMarcarFalta:false,
+      motivo:"Validación no disponible: la cobertura no tiene horario operativo completo."
+    };
+  }
+
+  const abreVentana=addHours(inicio,-1);
+  const tolerancia=getSupervisorToleranceMinutes(item);
+  const faltaDesde=addMinutes(inicio,tolerancia);
+
+  if(ahora<abreVentana){
+    return {
+      puedeValidar:false,
+      puedeMarcarFalta:false,
+      motivo:`Validación disponible desde ${formatSupervisorWindowDateTime(abreVentana)}.`
+    };
+  }
+
+  if(ahora>fin){
+    return {
+      puedeValidar:false,
+      puedeMarcarFalta:false,
+      motivo:"Validación cerrada: la cobertura ya terminó."
+    };
+  }
+
+  return {
+    puedeValidar:true,
+    puedeMarcarFalta:ahora>=faltaDesde,
+    motivo:ahora>=faltaDesde
+      ?"Validación SUP disponible para esta cobertura."
+      :`Validación SUP disponible. Falta disponible desde ${formatSupervisorWindowDateTime(faltaDesde)}.`
+  };
+}
+
+function requireSupervisorValidationWindow(action){
+  const rules=getSupervisorValidationRules(supervisorSelectedItem);
+
+  if(action==="FALTA"){
+    if(!rules.puedeMarcarFalta){
+      alert(rules.motivo||"La falta aún no está disponible para esta cobertura.");
+      return false;
+    }
+    return true;
+  }
+
+  if(!rules.puedeValidar){
+    alert(rules.motivo||"Validación SUP no disponible para esta cobertura.");
+    return false;
+  }
+
+  return true;
+}
+
+function formatProgressDateTime(value){
+  if(!value)return"No registrado";
+  const d=new Date(value);
+  if(isNaN(d.getTime()))return"No registrado";
+  return d.toLocaleString("es-MX",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+}function getUrlParam(name){return new URLSearchParams(window.location.search).get(name)||""}function resolveCurrentMember(){const urlMemberId=getUrlParam("memberId")||getUrlParam("memberID")||getUrlParam("wixMemberId")||"",urlEmail=getUrlParam("email")||getUrlParam("correo")||"";if(urlMemberId){CURRENT_MEMBER_ID=urlMemberId;localStorage.setItem("SEGPRIV_MEMBER_ID",urlMemberId)}else{CURRENT_MEMBER_ID=localStorage.getItem("SEGPRIV_MEMBER_ID")||""}if(urlEmail){CURRENT_EMAIL=urlEmail;localStorage.setItem("SEGPRIV_EMAIL",urlEmail)}else{CURRENT_EMAIL=localStorage.getItem("SEGPRIV_EMAIL")||""}updateSessionTopbar();return CURRENT_MEMBER_ID}async function loadPwaContext(){resolveCurrentMember();pwaContext=null;pwaCanCoord=false;pwaCanSup=false;panelAccessOpen=false;renderPanelAccess();if(!CURRENT_MEMBER_ID)return;try{const url=`${API_BASE}/sprivPwaContext?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}&email=${encodeURIComponent(CURRENT_EMAIL||"")}&t=${Date.now()}`;const data=await fetchJson(url);if(data&&data.ok){pwaContext=data;pwaCanCoord=Boolean(data.canCoord);pwaCanSup=Boolean(data.canSup)}}catch(err){console.warn("No se pudo cargar contexto PWA:",err);pwaContext=null;pwaCanCoord=false;pwaCanSup=false}renderPanelAccess()}function renderPanelAccess(){const wrap=document.getElementById("panelAccessWrap"),cards=document.getElementById("panelAccessCards"),coord=document.getElementById("coordPanelCard"),sup=document.getElementById("supPanelCard"),caret=document.getElementById("panelAccessCaret");const hasAccess=Boolean(pwaCanCoord||pwaCanSup);if(wrap)wrap.classList.toggle("hidden",!hasAccess);if(coord)coord.classList.toggle("hidden",!pwaCanCoord);if(sup)sup.classList.toggle("hidden",!pwaCanSup);if(cards)cards.classList.toggle("hidden",!hasAccess||!panelAccessOpen);if(caret)caret.textContent=panelAccessOpen?"▲":"▼"}
 function updateSessionTopbar(){const loginBtn=document.getElementById("btnLoginSegpriv"),logoutBtn=document.querySelector(".logout-mini-btn");if(loginBtn)loginBtn.classList.toggle("hidden",Boolean(CURRENT_MEMBER_ID));if(logoutBtn)logoutBtn.classList.toggle("hidden",!CURRENT_MEMBER_ID)}function iniciarSesionSegpriv(){window.location.href=SEGPRIV_ACCESS_URL}function cerrarSesionSegpriv(){if(!confirm("¿Deseas cerrar sesión en SEGPRIV?"))return;localStorage.removeItem("SEGPRIV_MEMBER_ID");localStorage.removeItem("SEGPRIV_EMAIL");CURRENT_MEMBER_ID="";CURRENT_EMAIL="";pwaContext=null;pwaCanCoord=false;pwaCanSup=false;panelAccessOpen=false;smsProfile=null;smsSelectedContact=null;if(smsRefreshTimer){clearInterval(smsRefreshTimer);smsRefreshTimer=null}window.location.href=`${SEGPRIV_ACCESS_URL}?logout=1`}
 function setDocsStatus(text,error=false){const el=document.getElementById("docsStatusLine");if(!el)return;el.textContent=text;el.className=error?"status-line module-status-inline status-error":"status-line module-status-inline"}async function loadDocuments(){resolveCurrentMember();const root=document.getElementById("docsList");if(!root)return;if(!CURRENT_MEMBER_ID){docsItems=[];docsCategorias=[];setDocsStatus("Sin sesión",true);renderDocumentsCategories();root.innerHTML="<div class='empty'>Debes entrar desde el portal Wix de acceso SEGPRIV.</div>";return}setDocsStatus("Cargando...");root.innerHTML="<div class='empty'>Cargando documentos...</div>";try{const data=await fetchJson(`${API_BASE}/sprivDocumentos?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}&email=${encodeURIComponent(CURRENT_EMAIL||"")}&t=${Date.now()}`);if(!data.ok){docsItems=[];docsCategorias=[];setDocsStatus("No disponible",true);renderDocumentsCategories();root.innerHTML=`<div class="empty">${escapeHtml(data.error||"No fue posible cargar documentos.")}</div>`;return}docsItems=data.items||[];docsCategorias=data.categorias||[];docsCategoriaActual="TODOS";setDocsStatus(`Documentos: ${docsItems.length}`);renderDocumentsCategories();renderDocumentsList()}catch(err){console.error("Error documentos:",err);docsItems=[];docsCategorias=[];setDocsStatus("Error",true);renderDocumentsCategories();root.innerHTML="<div class='empty'>Error al conectar con documentos.</div>"}}
 function renderDocumentsCategories(){const row=document.getElementById("docsCategoryRow");if(!row)return;row.innerHTML=`<button class="docs-category-btn ${docsCategoriaActual==="TODOS"?"active":""}" onclick="setDocumentsCategory('TODOS')">Todos</button>${(docsCategorias||[]).map(cat=>`<button class="docs-category-btn ${docsCategoriaActual===cat?"active":""}" onclick="setDocumentsCategory('${escapeAttr(cat)}')">${escapeHtml(cat)}</button>`).join("")}`}function setDocumentsCategory(category){docsCategoriaActual=category||"TODOS";renderDocumentsCategories();renderDocumentsList()}function handleDocumentsSearch(){clearTimeout(docsSearchTimer);docsSearchTimer=setTimeout(renderDocumentsList,200)}function getFilteredDocuments(){const q=normalizeDocsText(getValue("docsSearchInput"));return(docsItems||[]).filter(doc=>{if(docsCategoriaActual&&docsCategoriaActual!=="TODOS"&&String(doc.categoria||"")!==docsCategoriaActual)return false;if(!q)return true;const haystack=normalizeDocsText([doc.titulo,doc.descripcion,doc.categoria,doc.tipoDocumento,doc.etiquetas,doc.versionDocumento].filter(Boolean).join(" "));return haystack.includes(q)})}function renderDocumentsList(){const root=document.getElementById("docsList");if(!root)return;const data=getFilteredDocuments();if(!data.length){root.innerHTML="<div class='empty'>Sin documentos para este filtro.</div>";return}root.innerHTML=data.map(doc=>{const titulo=doc.titulo||"Documento",categoria=doc.categoria||"General",tipo=doc.tipoDocumento||"",version=doc.versionDocumento?`Versión ${doc.versionDocumento}`:"",fecha=doc.fechaActualizacion?formatSmsDateTime(doc.fechaActualizacion):"",meta=[categoria,tipo,version,fecha].filter(Boolean).join(" · "),url=doc.urlVistaPrevia||doc.urlDocumento||"",urlDocumento=doc.urlDocumento||url,descargable=doc.descargable===true;return`<div class="docs-item"><div class="docs-item-header"><div><div class="docs-title">${escapeHtml(titulo)}</div><div class="docs-meta">${escapeHtml(meta)}</div></div><span class="docs-badge">${escapeHtml(categoria)}</span></div>${doc.descripcion?`<div class="docs-description">${escapeHtml(doc.descripcion)}</div>`:""}<div class="docs-actions">${url?`<button onclick="openDocumentUrl('${escapeAttr(url)}')">Abrir</button>`:""}${descargable&&urlDocumento?`<button class="secondary" onclick="openDocumentUrl('${escapeAttr(urlDocumento)}')">Descargar</button>`:""}</div></div>`}).join("")}function openDocumentUrl(url){if(url)window.open(url,"_blank","noopener,noreferrer")}function normalizeDocsText(value){return String(value||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}
