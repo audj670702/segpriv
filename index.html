@@ -26,6 +26,7 @@
     .app-version{font-size:11px;font-weight:700;background:rgba(255,255,255,.12);color:#d1d5db;padding:3px 7px;border-radius:999px;white-space:nowrap}
 
 .pwa-profile-card{
+  position:relative;
   background:white;
   border:1px solid var(--border);
   border-radius:18px;
@@ -84,26 +85,27 @@
   text-overflow:ellipsis;
 }
 
-@media(max-width:520px){
-  .pwa-profile-card{
-    padding:9px 10px;
-    margin:-3px 0 9px;
-  }
-
-  .pwa-profile-avatar{
-    width:40px;
-    height:40px;
-    font-size:13px;
-  }
-
-  .pwa-profile-name{
-    font-size:14px;
-  }
-
-  .pwa-profile-meta{
-    font-size:11px;
-  }
+    .pwa-profile-diag{
+  position:absolute;
+  top:7px;
+  right:12px;
+  font-size:9.5px;
+  font-weight:700;
+  color:#9ca3af;
+  letter-spacing:.15px;
+  line-height:1;
+  max-width:120px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  pointer-events:none;
 }
+
+  .pwa-profile-diag{
+    top:6px;
+    right:10px;
+    font-size:8.8px;
+  }
     
     .logout-mini-btn{width:30px;height:30px;padding:0;border-radius:999px;background:rgba(255,255,255,.08);color:#d1d5db;border:1px solid rgba(255,255,255,.14);font-size:15px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
     .login-mini-link{margin-top:4px;padding:0;border:none;background:transparent;color:#93c5fd;font-size:11px;font-weight:800;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
@@ -601,7 +603,7 @@
         <div class="app-left-block">
           <button class="logout-mini-btn" onclick="cerrarSesionSegpriv()" title="Cerrar sesión" aria-label="Cerrar sesión">⎋</button>
           <div>
-            <div class="app-brand"><h1>SCaD</h1><span class="app-version">v0.3.65</span></div>
+            <div class="app-brand"><h1>SCaD</h1><span class="app-version">v0.3.66</span></div>
             <p>Portal operativo</p>
             <button id="btnLoginSegpriv" class="login-mini-link hidden" onclick="iniciarSesionSegpriv()">Iniciar sesión</button>
           </div>
@@ -620,13 +622,16 @@
       </div>
     </div>
 
-    <div id="pwaProfileCard" class="pwa-profile-card hidden">
-      <div id="pwaProfileAvatar" class="pwa-profile-avatar">SP</div>
-      <div class="pwa-profile-info">
-        <div id="pwaProfileName" class="pwa-profile-name">Usuario SEGPRIV</div>
-        <div id="pwaProfileMeta" class="pwa-profile-meta">Perfil operativo</div>
-      </div>
-    </div>
+<div id="pwaProfileCard" class="pwa-profile-card hidden">
+  <div id="pwaProfileDiag" class="pwa-profile-diag">Em0MiD0A0AcA0EO0</div>
+
+  <div id="pwaProfileAvatar" class="pwa-profile-avatar">SP</div>
+
+  <div class="pwa-profile-info">
+    <div id="pwaProfileName" class="pwa-profile-name">Usuario SEGPRIV</div>
+    <div id="pwaProfileMeta" class="pwa-profile-meta">Perfil operativo</div>
+  </div>
+</div>
 
     <section id="screenSms" class="global-sms-panel sms-collapsed">
   <button class="global-sms-head" onclick="toggleSmsPanel()">
@@ -910,6 +915,68 @@ function obtenerInicialesPerfil(nombre){
   return `${primera}${segunda}`.toUpperCase() || "SP";
 }
 
+function construirCodigoDiagnosticoPerfil(){
+  const ctx = pwaContext || {};
+
+  const perfil =
+    ctx.perfilPersonal ||
+    ctx.personal ||
+    ctx.usuario ||
+    ctx.member ||
+    ctx.guardia ||
+    {};
+
+  const emailPerfil = String(
+    perfil.correo ||
+    perfil.email ||
+    perfil.loginEmail ||
+    ctx.correo ||
+    ctx.email ||
+    ctx.loginEmail ||
+    CURRENT_EMAIL ||
+    ""
+  ).trim().toLowerCase();
+
+  const emailSesion = String(CURRENT_EMAIL || "").trim().toLowerCase();
+
+  const memberIdPerfil = String(
+    perfil.memberId ||
+    perfil.memberID ||
+    ctx.memberId ||
+    ctx.memberID ||
+    ctx.wixMemberId ||
+    ""
+  ).trim();
+
+  const empresaOperadoraId = String(
+    perfil.empresaOperadoraId ||
+    ctx.empresaOperadoraId ||
+    ctx.empresaOperadora?._id ||
+    ctx.empresaOperadora?.empresaOperadoraId ||
+    ""
+  ).trim();
+
+  const em = emailSesion && emailPerfil
+    ? emailSesion === emailPerfil
+    : Boolean(emailSesion || emailPerfil);
+
+  const mid = Boolean(CURRENT_MEMBER_ID && memberIdPerfil && CURRENT_MEMBER_ID === memberIdPerfil);
+
+  const activo = perfil.activo === true || ctx.activo === true;
+
+  const accesoActivo =
+    perfil.accesoActivo === true ||
+    ctx.accesoActivo === true ||
+    ctx.ok === true;
+
+  const eo =
+    Boolean(empresaOperadoraId) ||
+    ctx.empresaOperadoraActiva === true ||
+    ctx.eoActiva === true;
+
+  return `Em${em ? 1 : 0}MiD${mid ? 1 : 0}A${activo ? 1 : 0}AcA${accesoActivo ? 1 : 0}EO${eo ? 1 : 0}`;
+}
+    
 function obtenerDatosPerfilOperativo(){
   const ctx=pwaContext || {};
 
@@ -962,6 +1029,7 @@ function renderPerfilOperativo(){
   const avatar=document.getElementById("pwaProfileAvatar");
   const name=document.getElementById("pwaProfileName");
   const meta=document.getElementById("pwaProfileMeta");
+  const diag=document.getElementById("pwaProfileDiag");
 
   if(!card || !avatar || !name || !meta)return;
 
@@ -970,6 +1038,7 @@ function renderPerfilOperativo(){
     avatar.innerHTML="SP";
     name.textContent="Usuario SEGPRIV";
     meta.textContent="Perfil operativo";
+    if(diag) diag.textContent="Em0MiD0A0AcA0EO0";
     return;
   }
 
@@ -977,6 +1046,10 @@ function renderPerfilOperativo(){
 
   name.textContent=datos.nombre;
   meta.textContent=datos.puesto;
+
+  if(diag){
+    diag.textContent=construirCodigoDiagnosticoPerfil();
+  }
 
   if(datos.fotoPersonal){
     avatar.innerHTML =
