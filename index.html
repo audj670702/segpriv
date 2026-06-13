@@ -24,6 +24,87 @@
     .app-brand{display:flex;align-items:center;gap:8px}
     .app-title-row h1{margin:0;font-size:22px}.app-top p{margin:5px 0 0;color:#d1d5db;font-size:13px}
     .app-version{font-size:11px;font-weight:700;background:rgba(255,255,255,.12);color:#d1d5db;padding:3px 7px;border-radius:999px;white-space:nowrap}
+
+.pwa-profile-card{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:10px 12px;
+  margin:-2px 0 10px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+}
+
+.pwa-profile-avatar{
+  width:46px;
+  height:46px;
+  border-radius:999px;
+  background:linear-gradient(135deg,#111827,#374151);
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:15px;
+  font-weight:900;
+  overflow:hidden;
+  flex-shrink:0;
+  border:1px solid rgba(17,24,39,.12);
+}
+
+.pwa-profile-avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+.pwa-profile-info{
+  min-width:0;
+  flex:1;
+}
+
+.pwa-profile-name{
+  font-size:15px;
+  font-weight:900;
+  color:var(--text);
+  line-height:1.15;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.pwa-profile-meta{
+  margin-top:3px;
+  font-size:11.5px;
+  font-weight:700;
+  color:var(--muted);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+@media(max-width:520px){
+  .pwa-profile-card{
+    padding:9px 10px;
+    margin:-3px 0 9px;
+  }
+
+  .pwa-profile-avatar{
+    width:40px;
+    height:40px;
+    font-size:13px;
+  }
+
+  .pwa-profile-name{
+    font-size:14px;
+  }
+
+  .pwa-profile-meta{
+    font-size:11px;
+  }
+}
+    
     .logout-mini-btn{width:30px;height:30px;padding:0;border-radius:999px;background:rgba(255,255,255,.08);color:#d1d5db;border:1px solid rgba(255,255,255,.14);font-size:15px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
     .login-mini-link{margin-top:4px;padding:0;border:none;background:transparent;color:#93c5fd;font-size:11px;font-weight:800;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
     .topbar-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}.install-info{display:flex;align-items:center;gap:6px}
@@ -520,7 +601,7 @@
         <div class="app-left-block">
           <button class="logout-mini-btn" onclick="cerrarSesionSegpriv()" title="Cerrar sesión" aria-label="Cerrar sesión">⎋</button>
           <div>
-            <div class="app-brand"><h1>SCaD</h1><span class="app-version">v0.3.64</span></div>
+            <div class="app-brand"><h1>SCaD</h1><span class="app-version">v0.3.65</span></div>
             <p>Portal operativo</p>
             <button id="btnLoginSegpriv" class="login-mini-link hidden" onclick="iniciarSesionSegpriv()">Iniciar sesión</button>
           </div>
@@ -536,6 +617,14 @@
 <button class="topbar-icon-btn" onclick="refreshCurrentScreen()" title="Actualizar" aria-label="Actualizar">↻</button>
 <button class="topbar-icon-btn" onclick="openManualOperacion()" title="Manual de Operación" aria-label="Manual de Operación">ⓘ</button>
         </div>
+      </div>
+    </div>
+
+    <div id="pwaProfileCard" class="pwa-profile-card hidden">
+      <div id="pwaProfileAvatar" class="pwa-profile-avatar">SP</div>
+      <div class="pwa-profile-info">
+        <div id="pwaProfileName" class="pwa-profile-name">Usuario SEGPRIV</div>
+        <div id="pwaProfileMeta" class="pwa-profile-meta">Perfil operativo</div>
       </div>
     </div>
 
@@ -773,7 +862,133 @@ if(screenId==="screenHome"){
   showToast("Inicio actualizado");
   return;
 }showToast("Actualizado")}catch(err){console.error("Error al actualizar pantalla:",err);showToast("No fue posible actualizar","error")}}
-function goHome(){
+
+function normalizarUrlImagenWix(valor){
+  if(!valor)return "";
+
+  if(typeof valor==="object"){
+    return normalizarUrlImagenWix(
+      valor.url ||
+      valor.fileUrl ||
+      valor.src ||
+      valor.mediaUrl ||
+      ""
+    );
+  }
+
+  const url=String(valor||"").trim();
+
+  if(!url)return "";
+
+  if(url.startsWith("http://") || url.startsWith("https://")){
+    return url;
+  }
+
+  if(url.startsWith("wix:image://v1/")){
+    const limpio=url.replace("wix:image://v1/","");
+    const mediaId=limpio.split("/")[0].split("#")[0];
+
+    if(mediaId){
+      return `https://static.wixstatic.com/media/${mediaId}`;
+    }
+  }
+
+  return url;
+}
+
+function obtenerInicialesPerfil(nombre){
+  const partes=String(nombre||"")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if(!partes.length)return "SP";
+
+  const primera=partes[0]?.[0] || "";
+  const segunda=partes.length>1 ? partes[1]?.[0] : "";
+
+  return `${primera}${segunda}`.toUpperCase() || "SP";
+}
+
+function obtenerDatosPerfilOperativo(){
+  const ctx=pwaContext || {};
+
+  const perfil =
+    ctx.perfilPersonal ||
+    ctx.personal ||
+    ctx.usuario ||
+    ctx.member ||
+    ctx.guardia ||
+    {};
+
+  const nombre =
+    perfil.nombreParaMostrar ||
+    perfil.nombreCompleto ||
+    perfil.title ||
+    ctx.nombreParaMostrar ||
+    ctx.nombreCompleto ||
+    ctx.nombre ||
+    ctx.guardia?.nombre ||
+    CURRENT_EMAIL ||
+    "Usuario SEGPRIV";
+
+  const puesto =
+    perfil.puesto ||
+    ctx.puesto ||
+    ctx.rolDelSistema ||
+    ctx.rolSegpriv ||
+    ctx.rolFuncional ||
+    "Personal operativo";
+
+  const fotoPersonal = normalizarUrlImagenWix(
+    perfil.fotoPersonal ||
+    ctx.fotoPersonal ||
+    ctx.foto ||
+    ctx.avatar ||
+    ctx.guardia?.fotoPersonal ||
+    ""
+  );
+
+  return {
+    nombre,
+    puesto,
+    fotoPersonal,
+    iniciales: obtenerInicialesPerfil(nombre)
+  };
+}
+
+function renderPerfilOperativo(){
+  const card=document.getElementById("pwaProfileCard");
+  const avatar=document.getElementById("pwaProfileAvatar");
+  const name=document.getElementById("pwaProfileName");
+  const meta=document.getElementById("pwaProfileMeta");
+
+  if(!card || !avatar || !name || !meta)return;
+
+  if(!CURRENT_MEMBER_ID){
+    card.classList.add("hidden");
+    avatar.innerHTML="SP";
+    name.textContent="Usuario SEGPRIV";
+    meta.textContent="Perfil operativo";
+    return;
+  }
+
+  const datos=obtenerDatosPerfilOperativo();
+
+  name.textContent=datos.nombre;
+  meta.textContent=datos.puesto;
+
+  if(datos.fotoPersonal){
+    avatar.innerHTML =
+      `<img src="${escapeAttr(datos.fotoPersonal)}" alt="Foto de perfil operativo" onerror="this.parentElement.textContent='${escapeAttr(datos.iniciales)}';" />`;
+  }else{
+    avatar.textContent=datos.iniciales;
+  }
+
+  card.classList.remove("hidden");
+}
+    
+    function goHome(){
   showScreen("screenHome");
   renderPanelAccess();
   loadHomeSmsPending();
@@ -1148,7 +1363,22 @@ function collapseSmsPanel(){
 }
     function togglePanelAccess(){if(!pwaCanCoord&&!pwaCanSup)return;panelAccessOpen=!panelAccessOpen;renderPanelAccess()}
 function setStatus(text,error=false){const el=document.getElementById("statusLine");if(!el)return;el.textContent=text;el.className=error?"status-line module-status-inline status-error":"status-line module-status-inline"}
-async function loadServices(){resolveCurrentMember();if(!CURRENT_MEMBER_ID){servicios=[];setStatus("Sin sesión",true);renderViews();setHtml("calendarView","<div class='empty'>Debes entrar desde el portal Wix de acceso SEGPRIV.</div>");setHtml("listView","<div class='empty'>Debes entrar desde el portal Wix de acceso SEGPRIV.</div>");return}setStatus("Cargando servicios...");const fechaInicio=getValue("inputStartDate"),fechaFin=getValue("inputEndDate");try{const url=`${API_BASE}/sprivMisServicios?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}&email=${encodeURIComponent(CURRENT_EMAIL||"")}&fechaInicio=${encodeURIComponent(fechaInicio)}&fechaFin=${encodeURIComponent(fechaFin)}&estatus=TODOS&t=${Date.now()}`;const data=await fetchJson(url);if(!data.ok){servicios=[];setStatus(data.error||"No fue posible cargar servicios.",true);renderViews();return}servicios=data.items||[];setText("guardiaNombre",data.guardia?.nombre||"Guardia");setStatus(`Servicios encontrados: ${servicios.length}`);renderViews()}catch(err){console.error(err);servicios=[];setStatus("Error al conectar con el sistema.",true);renderViews()}}
+async function loadServices(){resolveCurrentMember();if(!CURRENT_MEMBER_ID){servicios=[];setStatus("Sin sesión",true);renderViews();setHtml("calendarView","<div class='empty'>Debes entrar desde el portal Wix de acceso SEGPRIV.</div>");setHtml("listView","<div class='empty'>Debes entrar desde el portal Wix de acceso SEGPRIV.</div>");return}setStatus("Cargando servicios...");const fechaInicio=getValue("inputStartDate"),fechaFin=getValue("inputEndDate");try{const url=`${API_BASE}/sprivMisServicios?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}&email=${encodeURIComponent(CURRENT_EMAIL||"")}&fechaInicio=${encodeURIComponent(fechaInicio)}&fechaFin=${encodeURIComponent(fechaFin)}&estatus=TODOS&t=${Date.now()}`;const data=await fetchJson(url);if(!data.ok){servicios=[];setStatus(data.error||"No fue posible cargar servicios.",true);renderViews();return}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+servicios=data.items||[];
+
+if(data.guardia){
+  pwaContext={
+    ...(pwaContext || {}),
+    guardia:data.guardia
+  };
+
+  renderPerfilOperativo();
+}
+
+setText("guardiaNombre",data.guardia?.nombre||"Guardia");
+setStatus(`Servicios encontrados: ${servicios.length}`);
+renderViews()                                                                                                                                                                                                                                                                                                                                                                                                                                                                          }catch(err){console.error(err);servicios=[];setStatus("Error al conectar con el sistema.",true);renderViews()}}
 function setView(view){currentView=view;toggleActive("btnViewCalendar",view==="calendar");toggleActive("btnViewList",view==="list");display("calendarView",view==="calendar");display("listView",view==="list")}function setCalendarMode(mode){calendarMode=mode;renderCalendar()}function goToday(){selectedDate=new Date();setInputValue("inputGoDate",toDateKey(selectedDate));calendarMode="day";renderCalendar()}function goToSelectedDate(){const value=getValue("inputGoDate");if(!value)return;selectedDate=createLocalDate(value);calendarMode="day";renderCalendar()}function setStatusFilter(status){statusFilter=status;["TODOS","CONF","RUTA","PRES","ASISTENCIA","FALTA","OBSERVADO"].forEach(s=>toggleActive(`filter${s}`,s===status));renderViews()}
 function normalizeServiceStatus(status){const raw=String(status||"").trim().toUpperCase();if(raw==="ASIST")return"ASISTENCIA";if(raw==="FALTO")return"FALTA";if(raw==="OBS")return"OBSERVADO";return raw}function getServiceStatusCounts(){const counts={TODOS:servicios.length,CONF:0,RUTA:0,PRES:0,ASISTENCIA:0,FALTA:0,OBSERVADO:0};servicios.forEach(item=>{const estado=normalizeServiceStatus(item.estado);if(Object.prototype.hasOwnProperty.call(counts,estado))counts[estado]++});return counts}function formatCountValue(value){return Number(value||0)>0?String(value):"-"}function renderStatusCounts(){const counts=getServiceStatusCounts();Object.keys(counts).forEach(key=>setText(`count${key}`,formatCountValue(counts[key])))}
 function renderComplianceSummary(){renderCompliance("complianceSummary",getServiceStatusCounts(),"Sin registro de cumplimiento")}function getFilteredServices(){return statusFilter==="TODOS"?servicios:servicios.filter(item=>normalizeServiceStatus(item.estado)===statusFilter)}function renderViews(){renderStatusCounts();renderComplianceSummary();renderList();renderCalendar();setView(currentView)}
@@ -1563,7 +1793,43 @@ function formatProgressDateTime(value){
   const d=new Date(value);
   if(isNaN(d.getTime()))return"No registrado";
   return d.toLocaleString("es-MX",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
-}function getUrlParam(name){return new URLSearchParams(window.location.search).get(name)||""}function resolveCurrentMember(){const urlMemberId=getUrlParam("memberId")||getUrlParam("memberID")||getUrlParam("wixMemberId")||"",urlEmail=getUrlParam("email")||getUrlParam("correo")||"";if(urlMemberId){CURRENT_MEMBER_ID=urlMemberId;localStorage.setItem("SEGPRIV_MEMBER_ID",urlMemberId)}else{CURRENT_MEMBER_ID=localStorage.getItem("SEGPRIV_MEMBER_ID")||""}if(urlEmail){CURRENT_EMAIL=urlEmail;localStorage.setItem("SEGPRIV_EMAIL",urlEmail)}else{CURRENT_EMAIL=localStorage.getItem("SEGPRIV_EMAIL")||""}updateSessionTopbar();return CURRENT_MEMBER_ID}async function loadPwaContext(){resolveCurrentMember();pwaContext=null;pwaCanCoord=false;pwaCanSup=false;panelAccessOpen=false;renderPanelAccess();if(!CURRENT_MEMBER_ID)return;try{const url=`${API_BASE}/sprivPwaContext?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}&email=${encodeURIComponent(CURRENT_EMAIL||"")}&t=${Date.now()}`;const data=await fetchJson(url);if(data&&data.ok){pwaContext=data;pwaCanCoord=Boolean(data.canCoord);pwaCanSup=Boolean(data.canSup)}}catch(err){console.warn("No se pudo cargar contexto PWA:",err);pwaContext=null;pwaCanCoord=false;pwaCanSup=false}renderPanelAccess()}function renderPanelAccess(){const wrap=document.getElementById("panelAccessWrap"),cards=document.getElementById("panelAccessCards"),coord=document.getElementById("coordPanelCard"),sup=document.getElementById("supPanelCard"),caret=document.getElementById("panelAccessCaret");const hasAccess=Boolean(pwaCanCoord||pwaCanSup);if(wrap)wrap.classList.toggle("hidden",!hasAccess);if(coord)coord.classList.toggle("hidden",!pwaCanCoord);if(sup)sup.classList.toggle("hidden",!pwaCanSup);if(cards)cards.classList.toggle("hidden",!hasAccess||!panelAccessOpen);if(caret)caret.textContent=panelAccessOpen?"▲":"▼"}
+}function getUrlParam(name){return new URLSearchParams(window.location.search).get(name)||""}function resolveCurrentMember(){const urlMemberId=getUrlParam("memberId")||getUrlParam("memberID")||getUrlParam("wixMemberId")||"",urlEmail=getUrlParam("email")||getUrlParam("correo")||"";if(urlMemberId){CURRENT_MEMBER_ID=urlMemberId;localStorage.setItem("SEGPRIV_MEMBER_ID",urlMemberId)}else{CURRENT_MEMBER_ID=localStorage.getItem("SEGPRIV_MEMBER_ID")||""}if(urlEmail){CURRENT_EMAIL=urlEmail;localStorage.setItem("SEGPRIV_EMAIL",urlEmail)}else{CURRENT_EMAIL=localStorage.getItem("SEGPRIV_EMAIL")||""}updateSessionTopbar();return CURRENT_MEMBER_ID}
+
+async function loadPwaContext(){
+  resolveCurrentMember();
+
+  pwaContext=null;
+  pwaCanCoord=false;
+  pwaCanSup=false;
+  panelAccessOpen=false;
+
+  renderPanelAccess();
+  renderPerfilOperativo();
+
+  if(!CURRENT_MEMBER_ID){
+    return;
+  }
+
+  try{
+    const url=`${API_BASE}/sprivPwaContext?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}&email=${encodeURIComponent(CURRENT_EMAIL||"")}&t=${Date.now()}`;
+    const data=await fetchJson(url);
+
+    if(data&&data.ok){
+      pwaContext=data;
+      pwaCanCoord=Boolean(data.canCoord);
+      pwaCanSup=Boolean(data.canSup);
+    }
+  }catch(err){
+    console.warn("No se pudo cargar contexto PWA:",err);
+    pwaContext=null;
+    pwaCanCoord=false;
+    pwaCanSup=false;
+  }
+
+  renderPanelAccess();
+  renderPerfilOperativo();
+}    
+function renderPanelAccess(){const wrap=document.getElementById("panelAccessWrap"),cards=document.getElementById("panelAccessCards"),coord=document.getElementById("coordPanelCard"),sup=document.getElementById("supPanelCard"),caret=document.getElementById("panelAccessCaret");const hasAccess=Boolean(pwaCanCoord||pwaCanSup);if(wrap)wrap.classList.toggle("hidden",!hasAccess);if(coord)coord.classList.toggle("hidden",!pwaCanCoord);if(sup)sup.classList.toggle("hidden",!pwaCanSup);if(cards)cards.classList.toggle("hidden",!hasAccess||!panelAccessOpen);if(caret)caret.textContent=panelAccessOpen?"▲":"▼"}
 function updateSessionTopbar(){const loginBtn=document.getElementById("btnLoginSegpriv"),logoutBtn=document.querySelector(".logout-mini-btn");if(loginBtn)loginBtn.classList.toggle("hidden",Boolean(CURRENT_MEMBER_ID));if(logoutBtn)logoutBtn.classList.toggle("hidden",!CURRENT_MEMBER_ID)}function iniciarSesionSegpriv(){window.location.href=SEGPRIV_ACCESS_URL}function cerrarSesionSegpriv(){if(!confirm("¿Deseas cerrar sesión en SEGPRIV?"))return;localStorage.removeItem("SEGPRIV_MEMBER_ID");localStorage.removeItem("SEGPRIV_EMAIL");CURRENT_MEMBER_ID="";CURRENT_EMAIL="";pwaContext=null;pwaCanCoord=false;pwaCanSup=false;panelAccessOpen=false;smsProfile=null;smsSelectedContact=null;if(smsRefreshTimer){clearInterval(smsRefreshTimer);smsRefreshTimer=null}window.location.href=`${SEGPRIV_ACCESS_URL}?logout=1`}
 function setDocsStatus(text,error=false){const el=document.getElementById("docsStatusLine");if(!el)return;el.textContent=text;el.className=error?"status-line module-status-inline status-error":"status-line module-status-inline"}async function loadDocuments(){resolveCurrentMember();const root=document.getElementById("docsList");if(!root)return;if(!CURRENT_MEMBER_ID){docsItems=[];docsCategorias=[];setDocsStatus("Sin sesión",true);renderDocumentsCategories();root.innerHTML="<div class='empty'>Debes entrar desde el portal Wix de acceso SEGPRIV.</div>";return}setDocsStatus("Cargando...");root.innerHTML="<div class='empty'>Cargando documentos...</div>";try{const data=await fetchJson(`${API_BASE}/sprivDocumentos?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}&email=${encodeURIComponent(CURRENT_EMAIL||"")}&t=${Date.now()}`);if(!data.ok){docsItems=[];docsCategorias=[];setDocsStatus("No disponible",true);renderDocumentsCategories();root.innerHTML=`<div class="empty">${escapeHtml(data.error||"No fue posible cargar documentos.")}</div>`;return}docsItems=data.items||[];docsCategorias=data.categorias||[];docsCategoriaActual="TODOS";setDocsStatus(`Documentos: ${docsItems.length}`);renderDocumentsCategories();renderDocumentsList()}catch(err){console.error("Error documentos:",err);docsItems=[];docsCategorias=[];setDocsStatus("Error",true);renderDocumentsCategories();root.innerHTML="<div class='empty'>Error al conectar con documentos.</div>"}}
 function renderDocumentsCategories(){const row=document.getElementById("docsCategoryRow");if(!row)return;row.innerHTML=`<button class="docs-category-btn ${docsCategoriaActual==="TODOS"?"active":""}" onclick="setDocumentsCategory('TODOS')">Todos</button>${(docsCategorias||[]).map(cat=>`<button class="docs-category-btn ${docsCategoriaActual===cat?"active":""}" onclick="setDocumentsCategory('${escapeAttr(cat)}')">${escapeHtml(cat)}</button>`).join("")}`}function setDocumentsCategory(category){docsCategoriaActual=category||"TODOS";renderDocumentsCategories();renderDocumentsList()}function handleDocumentsSearch(){clearTimeout(docsSearchTimer);docsSearchTimer=setTimeout(renderDocumentsList,200)}function getFilteredDocuments(){const q=normalizeDocsText(getValue("docsSearchInput"));return(docsItems||[]).filter(doc=>{if(docsCategoriaActual&&docsCategoriaActual!=="TODOS"&&String(doc.categoria||"")!==docsCategoriaActual)return false;if(!q)return true;const haystack=normalizeDocsText([doc.titulo,doc.descripcion,doc.categoria,doc.tipoDocumento,doc.etiquetas,doc.versionDocumento].filter(Boolean).join(" "));return haystack.includes(q)})}function renderDocumentsList(){const root=document.getElementById("docsList");if(!root)return;const data=getFilteredDocuments();if(!data.length){root.innerHTML="<div class='empty'>Sin documentos para este filtro.</div>";return}root.innerHTML=data.map(doc=>{const titulo=doc.titulo||"Documento",categoria=doc.categoria||"General",tipo=doc.tipoDocumento||"",version=doc.versionDocumento?`Versión ${doc.versionDocumento}`:"",fecha=doc.fechaActualizacion?formatSmsDateTime(doc.fechaActualizacion):"",meta=[categoria,tipo,version,fecha].filter(Boolean).join(" · "),url=doc.urlVistaPrevia||doc.urlDocumento||"",urlDocumento=doc.urlDocumento||url,descargable=doc.descargable===true;return`<div class="docs-item"><div class="docs-item-header"><div><div class="docs-title">${escapeHtml(titulo)}</div><div class="docs-meta">${escapeHtml(meta)}</div></div><span class="docs-badge">${escapeHtml(categoria)}</span></div>${doc.descripcion?`<div class="docs-description">${escapeHtml(doc.descripcion)}</div>`:""}<div class="docs-actions">${url?`<button onclick="openDocumentUrl('${escapeAttr(url)}')">Abrir</button>`:""}${descargable&&urlDocumento?`<button class="secondary" onclick="openDocumentUrl('${escapeAttr(urlDocumento)}')">Descargar</button>`:""}</div></div>`}).join("")}function openDocumentUrl(url){if(url)window.open(url,"_blank","noopener,noreferrer")}function normalizeDocsText(value){return String(value||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}
