@@ -125,7 +125,7 @@
   }
 }
 
-    /* Home v0.3.58 - tarjetas compactas e indicador SMS */
+    /* Home v0.3.59 - tarjetas compactas e indicador SMS */
 #screenHome > .grid .module-card{
   min-height:76px;
   padding:13px 14px;
@@ -621,53 +621,19 @@ function renderComplianceSummary(){renderCompliance("complianceSummary",getServi
 function renderList(){const root=document.getElementById("listView"),data=getFilteredServices();if(!root)return;if(!data.length){root.innerHTML="<div class='empty'>Sin servicios para este filtro.</div>";return}root.innerHTML=`<div class="list">${data.map(item=>`<div class="service-card ${statusClass(item.estado)}" onclick="openDetail('${escapeAttr(item.coberturaId)}')"><div class="service-card-header"><div class="service-card-title">${escapeHtml(item.servicio||"Servicio")}</div><span class="badge ${statusClass(item.estado)}">${escapeHtml(item.estado||"")}</span></div><div class="service-card-sub">${formatDate(item.fecha)} · ${escapeHtml(item.horario||"")}<br>${escapeHtml(item.posicion||"")}</div></div>`).join("")}</div>`}
 function renderCalendar(){if(calendarMode==="day"){renderDayCalendar();return}if(calendarMode==="week"){renderWeekCalendar();return}renderMonthCalendar()}function renderCalendarModeButtons(){return`<div class="calendar-inline-modes"><button class="${calendarMode==="day"?"active":""}" onclick="goToday()">Hoy</button><button class="${calendarMode==="month"?"active":""}" onclick="setCalendarMode('month')">Mes</button><button class="${calendarMode==="week"?"active":""}" onclick="setCalendarMode('week')">Sem</button><button class="${calendarMode==="day"?"active":""}" onclick="setCalendarMode('day')">Día</button></div>`}function renderMonthCalendar(){renderGenericMonthCalendar("calendarView",selectedDate,getFilteredServices(),renderCalendarModeButtons(),"selectCalendarDate","openDetail")}function renderWeekCalendar(){renderGenericWeekCalendar("calendarView",selectedDate,getFilteredServices(),renderCalendarModeButtons(),"selectCalendarDate","openDetail")}function renderDayCalendar(){renderGenericDayCalendar("calendarView",selectedDate,getFilteredServices(),renderCalendarModeButtons(),"openDetail","Sin servicios para este día.")}function selectCalendarDate(key){selectedDate=createLocalDate(key);setInputValue("inputGoDate",key);calendarMode="day";renderCalendar()}
 function openDetail(id){selectedItem=servicios.find(s=>s.coberturaId===id);if(!selectedItem)return;renderDetail();showScreen("screenDetail")}
-   function renderDetail(){
-  const item = selectedItem;
-  if(!item) return;
-
-  const estado = normalizeServiceStatus(item.estado);
-  const cls = statusClass(estado);
-  const rules = getGuardOperationalRules(item);
-
-  let actionButton = "";
-
-  if(estado === "PROG"){
-    actionButton = `<button class="success" onclick="confirmarServicio()">Confirmar conocimiento</button>`;
-  }
-
-  if(estado === "CONF"){
-    actionButton = rules.puedeRuta
-      ? `<button class="warning" onclick="enRutaServicio()">Marcar en ruta</button>`
-      : `<div class="empty">${escapeHtml(rules.motivoRuta)}</div>`;
-  }
-
-  if(estado === "RUTA"){
-    actionButton = rules.puedePresente
-      ? `<button class="teal" onclick="presenteServicio()">Marcar presente</button>`
-      : `<div class="empty">${escapeHtml(rules.motivoPresente)}</div>`;
-  }
-
-  if(!actionButton){
-    actionButton = `<div class="empty">Sin acciones disponibles.</div>`;
-  }
-
-  setHtml("detailBox",`
-    <div class="detail">
-      <h2>${escapeHtml(item.servicio || "Servicio")}</h2>
-
-      <div class="reminder ${cls}">${escapeHtml(getReminderText(estado))}</div>
-
-      ${renderProgressLine(item)}
-
-      <div class="detail-row"><strong>Fecha</strong>${formatDate(item.fecha)}</div>
-      <div class="detail-row"><strong>Horario</strong>${escapeHtml(item.horario || "")}</div>
-      <div class="detail-row"><strong>Posición</strong>${escapeHtml(item.posicion || "")}</div>
-      <div class="detail-row"><strong>Indicaciones</strong>${escapeHtml(item.indicaciones || "Sin indicaciones.")}</div>
-
-      <div class="toolbar">${actionButton}</div>
-    </div>
-  `);
+   
+function renderDetail(){
+  const item=selectedItem;
+  if(!item)return;
+  const estado=normalizeServiceStatus(item.estado),cls=statusClass(estado);
+  let actionButton="";
+  if(estado==="PROG")actionButton=`<button class="success" onclick="confirmarServicio()">Confirmar conocimiento</button>`;
+  if(estado==="CONF")actionButton=`<button class="warning" onclick="enRutaServicio()">Marcar en ruta</button>`;
+  if(estado==="RUTA")actionButton=`<button class="teal" onclick="presenteServicio()">Marcar presente</button>`;
+  if(!actionButton)actionButton=`<div class="empty">Sin acciones disponibles.</div>`;
+  setHtml("detailBox",`<div class="detail"><h2>${escapeHtml(item.servicio||"Servicio")}</h2><div class="reminder ${cls}">${escapeHtml(getReminderText(estado))}</div>${renderProgressLine(item)}<div class="detail-row"><strong>Fecha</strong>${formatDate(item.fecha)}</div><div class="detail-row"><strong>Horario</strong>${escapeHtml(item.horario||"")}</div><div class="detail-row"><strong>Posición</strong>${escapeHtml(item.posicion||"")}</div><div class="detail-row"><strong>Indicaciones</strong>${escapeHtml(item.indicaciones||"Sin indicaciones.")}</div><div class="toolbar">${actionButton}</div></div>`)
 }
+    
     function getReminderText(estado){if(estado==="PROG")return"Tienes este servicio programado. Confirma conocimiento del servicio.";if(estado==="CONF")return"Servicio confirmado. Cuando inicies tu traslado, marca En ruta.";if(estado==="RUTA")return"Ya reportaste que vas en ruta. Al llegar, marca Presente.";if(estado==="PRES")return"Presencia registrada. Queda pendiente validación de supervisión.";if(estado==="ASISTENCIA")return"Asistencia validada por supervisión.";if(estado==="FALTA")return"Falta validada por supervisión.";if(estado==="OBSERVADO")return"Cobertura observada. Requiere revisión operativa.";return"Servicio en consulta."}
     
 async function confirmarServicio(){
