@@ -21,9 +21,42 @@
     .app-top{background:var(--dark);color:white;border-radius:16px;padding:14px;margin-bottom:12px}
     .app-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
     .app-left-block{display:flex;align-items:center;gap:9px;min-width:0}
-    .app-brand{display:flex;align-items:center;gap:8px}
-    .app-title-row h1{margin:0;font-size:22px}.app-top p{margin:5px 0 0;color:#d1d5db;font-size:13px}
-    .app-version{font-size:11px;font-weight:700;background:rgba(255,255,255,.12);color:#d1d5db;padding:3px 7px;border-radius:999px;white-space:nowrap}
+.app-brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+
+.app-logo{
+  width:50px;
+  height:50px;
+  object-fit:contain;
+  border-radius:12px;
+  flex-shrink:0;
+}
+
+.app-brand-text{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+
+.app-version-text{
+  font-size:10.5px;
+  font-weight:800;
+  color:#d1d5db;
+  letter-spacing:.2px;
+  line-height:1;
+}
+
+.app-top p{
+  margin:0;
+  color:#d1d5db;
+  font-size:13px;
+  line-height:1.15;
+}
 
 .pwa-profile-card{
   position:relative;
@@ -425,7 +458,21 @@
 }
 
     @media(max-width:520px)
-    {.app{padding:10px}.app-title-row h1{font-size:20px}.topbar-icon-btn{width:31px;height:31px;font-size:15px}.logout-mini-btn{width:28px;height:28px;font-size:14px}.pwa-install-status,.install-action{font-size:10px}.install-info{flex-direction:column;align-items:flex-end;gap:1px}.grid{grid-template-columns:1fr}.module-title-row{align-items:flex-start}.module-status-inline{font-size:11px;max-width:45%}.view-filter-row{flex-direction:column;align-items:stretch}.compact-view-tabs{display:flex;width:100%}.compact-view-tabs button{flex:1}.inline-period-controls{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:5px;width:100%;align-items:end}.inline-period-controls input[type="date"]{width:100%;min-width:0;font-size:10px;padding:7px 4px;text-align:center}.inline-period-controls button{min-width:38px;height:34px;padding:0 10px;font-size:0}.inline-period-controls button::before{content:"↻";font-size:16px;font-weight:900}.legend{gap:6px;padding:8px}.legend-row{gap:5px}.legend-pill{height:30px;padding:0 7px;font-size:10px}.legend-count{min-width:14px;height:15px;font-size:9.5px;padding:0 3px}.day{min-height:62px}.mini-event{font-size:8px}button{font-size:13px;padding:10px 12px}.sms-chat-box{height:360px}.sms-bubble{max-width:88%}}
+    {.app{padding:10px}
+     .app-logo{
+  width:44px;
+  height:44px;
+  border-radius:10px;
+}
+
+.app-version-text{
+  font-size:10px;
+}
+
+.app-top p{
+  font-size:12.5px;
+}
+     .topbar-icon-btn{width:31px;height:31px;font-size:15px}.logout-mini-btn{width:28px;height:28px;font-size:14px}.pwa-install-status,.install-action{font-size:10px}.install-info{flex-direction:column;align-items:flex-end;gap:1px}.grid{grid-template-columns:1fr}.module-title-row{align-items:flex-start}.module-status-inline{font-size:11px;max-width:45%}.view-filter-row{flex-direction:column;align-items:stretch}.compact-view-tabs{display:flex;width:100%}.compact-view-tabs button{flex:1}.inline-period-controls{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:5px;width:100%;align-items:end}.inline-period-controls input[type="date"]{width:100%;min-width:0;font-size:10px;padding:7px 4px;text-align:center}.inline-period-controls button{min-width:38px;height:34px;padding:0 10px;font-size:0}.inline-period-controls button::before{content:"↻";font-size:16px;font-weight:900}.legend{gap:6px;padding:8px}.legend-row{gap:5px}.legend-pill{height:30px;padding:0 7px;font-size:10px}.legend-count{min-width:14px;height:15px;font-size:9.5px;padding:0 3px}.day{min-height:62px}.mini-event{font-size:8px}button{font-size:13px;padding:10px 12px}.sms-chat-box{height:360px}.sms-bubble{max-width:88%}}
   
   @media(max-width:520px){
   #panelAccessCards.panel-access-grid{
@@ -707,8 +754,13 @@
         <div class="app-left-block">
           <button class="logout-mini-btn" onclick="cerrarSesionSegpriv()" title="Cerrar sesión" aria-label="Cerrar sesión">⎋</button>
           <div>
-            <div class="app-brand"><h1>SCaD</h1><span class="app-version">v0.3.76</span></div>
-            <p>Portal operativo</p>
+            <div class="app-brand">
+  <img class="app-logo" src="./icons/icon-192.png" alt="SCaD" />
+  <div class="app-brand-text">
+    <div class="app-version-text">v0.3.77</div>
+    <p>Portal operativo</p>
+  </div>
+</div>
             <button id="btnLoginSegpriv" class="login-mini-link hidden" onclick="iniciarSesionSegpriv()">Iniciar sesión</button>
           </div>
         </div>
