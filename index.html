@@ -63,11 +63,20 @@
   background:transparent;
   border:none;
   border-radius:0;
-  padding:4px 2px 10px;
-  margin:-2px 0 10px;
+  padding:2px 2px 7px;
+  margin:-2px 0 8px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.pwa-profile-main{
   display:flex;
   align-items:center;
   gap:11px;
+  min-width:0;
+  flex:1;
 }
 
 .pwa-profile-avatar{
@@ -118,27 +127,76 @@
   text-overflow:ellipsis;
 }
 
-    .pwa-profile-diag{
-  margin-top:3px;
+.pwa-profile-side{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  justify-content:center;
+  gap:2px;
+  max-width:43%;
+  min-width:112px;
+  flex-shrink:0;
+}
+
+.pwa-profile-diag{
   font-size:10px;
   font-weight:700;
   color:#9ca3af;
   letter-spacing:.15px;
-  line-height:1.15;
+  line-height:1.05;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
+  max-width:100%;
 }
 
 .pwa-profile-version{
-  margin-top:2px;
   font-size:9px;
   font-weight:400;
   color:#9ca3af;
-  line-height:1.1;
+  line-height:1.05;
   white-space:nowrap;
 }
-    
+@media(max-width:520px){
+  .pwa-profile-card{
+    padding:1px 1px 6px;
+    margin:-3px 0 7px;
+    gap:8px;
+  }
+
+  .pwa-profile-main{
+    gap:9px;
+  }
+
+  .pwa-profile-avatar{
+    width:40px;
+    height:40px;
+    font-size:13px;
+  }
+
+  .pwa-profile-name{
+    font-size:14px;
+  }
+
+  .pwa-profile-meta{
+    margin-top:2px;
+    font-size:10.8px;
+  }
+
+  .pwa-profile-side{
+    min-width:96px;
+    max-width:42%;
+  }
+
+  .pwa-profile-diag{
+    font-size:8.8px;
+  }
+
+  .pwa-profile-version{
+    font-size:8.3px;
+  }
+}
+
     .logout-mini-btn{width:30px;height:30px;padding:0;border-radius:999px;background:rgba(255,255,255,.08);color:#d1d5db;border:1px solid rgba(255,255,255,.14);font-size:15px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
     .login-mini-link{margin-top:4px;padding:0;border:none;background:transparent;color:#93c5fd;font-size:11px;font-weight:800;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
     .topbar-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}.install-info{display:flex;align-items:center;gap:6px}
@@ -973,11 +1031,16 @@
     </div>
 
 <div id="pwaProfileCard" class="pwa-profile-card">
-  <div id="pwaProfileAvatar" class="pwa-profile-avatar">SP</div>
+  <div class="pwa-profile-main">
+    <div id="pwaProfileAvatar" class="pwa-profile-avatar">SP</div>
 
-  <div class="pwa-profile-info">
-    <div id="pwaProfileName" class="pwa-profile-name">Usuario SEGPRIV</div>
-    <div id="pwaProfileMeta" class="pwa-profile-meta">Perfil operativo</div>
+    <div class="pwa-profile-info">
+      <div id="pwaProfileName" class="pwa-profile-name">Usuario SEGPRIV</div>
+      <div id="pwaProfileMeta" class="pwa-profile-meta">Perfil operativo</div>
+    </div>
+  </div>
+
+  <div class="pwa-profile-side">
     <div id="pwaProfileDiag" class="pwa-profile-diag">Em0MiD0A0AcA0Eo0</div>
     <div id="pwaProfileVersion" class="pwa-profile-version">v0.3.80</div>
   </div>
