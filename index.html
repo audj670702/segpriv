@@ -603,7 +603,7 @@
         <div class="app-left-block">
           <button class="logout-mini-btn" onclick="cerrarSesionSegpriv()" title="Cerrar sesión" aria-label="Cerrar sesión">⎋</button>
           <div>
-            <div class="app-brand"><h1>SCaD</h1><span class="app-version">v0.3.66</span></div>
+            <div class="app-brand"><h1>SCaD</h1><span class="app-version">v0.3.67</span></div>
             <p>Portal operativo</p>
             <button id="btnLoginSegpriv" class="login-mini-link hidden" onclick="iniciarSesionSegpriv()">Iniciar sesión</button>
           </div>
@@ -623,7 +623,7 @@
     </div>
 
 <div id="pwaProfileCard" class="pwa-profile-card hidden">
-  <div id="pwaProfileDiag" class="pwa-profile-diag">Em0MiD0A0AcA0EO0</div>
+  <div id="pwaProfileDiag" class="pwa-profile-diag">Em0MiD0A0AcA0Eo0</div>
 
   <div id="pwaProfileAvatar" class="pwa-profile-avatar">SP</div>
 
@@ -974,8 +974,7 @@ function construirCodigoDiagnosticoPerfil(){
     ctx.empresaOperadoraActiva === true ||
     ctx.eoActiva === true;
 
-  return `Em${em ? 1 : 0}MiD${mid ? 1 : 0}A${activo ? 1 : 0}AcA${accesoActivo ? 1 : 0}EO${eo ? 1 : 0}`;
-}
+return `Em${em ? 1 : 0}MiD${mid ? 1 : 0}A${activo ? 1 : 0}AcA${accesoActivo ? 1 : 0}Eo${eo ? 1 : 0}`;}
     
 function obtenerDatosPerfilOperativo(){
   const ctx=pwaContext || {};
@@ -1038,7 +1037,7 @@ function renderPerfilOperativo(){
     avatar.innerHTML="SP";
     name.textContent="Usuario SEGPRIV";
     meta.textContent="Perfil operativo";
-    if(diag) diag.textContent="Em0MiD0A0AcA0EO0";
+    if(diag) diag.textContent="Em0MiD0A0AcA0Eo0";
     return;
   }
 
