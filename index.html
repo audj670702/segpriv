@@ -121,7 +121,62 @@
     .compliance-strip{background:white;border:1px solid var(--border);border-radius:16px;padding:10px 12px;margin:8px 0 10px}.compliance-bar-pro{display:flex;width:100%;min-height:28px;border-radius:999px;overflow:hidden;background:linear-gradient(90deg,#f3f4f6,#d1d5db);box-shadow:inset 0 1px 2px rgba(0,0,0,.1),0 6px 14px rgba(17,24,39,.08)}.compliance-segment{min-height:30px;min-width:0;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px}.compliance-segment.asistencia{background:linear-gradient(90deg,#22c55e,#16a34a)}.compliance-segment.observado{background:linear-gradient(90deg,#facc15,#ca8a04);color:#422006}.compliance-segment.falta{background:linear-gradient(90deg,#f87171,#dc2626)}.compliance-segment.sinregistro{width:100%;background:linear-gradient(90deg,#f3f4f6,#d1d5db);color:var(--muted)}
     .list{display:flex;flex-direction:column;gap:10px}.service-card{background:white;border:1px solid var(--border);border-left:7px solid var(--gray);border-radius:16px;padding:14px;cursor:pointer}.service-card.prog{border-left-color:var(--blue)}.service-card.conf{border-left-color:var(--purple)}.service-card.ruta{border-left-color:var(--orange)}.service-card.pres{border-left-color:var(--teal)}.service-card.asist,.service-card.asistencia{border-left-color:var(--green)}.service-card.falta,.service-card.falto{border-left-color:var(--red)}.service-card.obs,.service-card.observado{border-left-color:var(--yellow)}.service-card-header{display:flex;justify-content:space-between;gap:8px;align-items:center}.service-card-title{font-weight:700;font-size:15px}.service-card-sub{margin-top:6px;font-size:13px;color:var(--muted)}.badge{border-radius:999px;padding:4px 8px;font-size:11px;font-weight:700;background:#e5e7eb;color:var(--dark);white-space:nowrap}.badge.prog{background:#dbeafe;color:#1d4ed8}.badge.conf{background:#e0e7ff;color:#4338ca}.badge.ruta{background:#ffedd5;color:#c2410c}.badge.pres{background:#ccfbf1;color:#0f766e}.badge.asist,.badge.asistencia{background:#dcfce7;color:#15803d}.badge.falta,.badge.falto{background:#fee2e2;color:#b91c1c}.badge.obs,.badge.observado{background:#fef9c3;color:#854d0e}
     .calendar{background:white;border:1px solid var(--border);border-radius:18px;padding:8px}.calendar-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 2px 8px}.calendar-title{font-size:14px;font-weight:700;margin:0}.calendar-inline-modes{display:flex;gap:4px;flex-shrink:0}.calendar-inline-modes button{padding:5px 8px;font-size:10px;border-radius:999px;background:#f9fafb;color:var(--dark);border:1px solid var(--border)}.calendar-inline-modes button.active{background:var(--dark);color:white;border-color:var(--dark)}.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.day-name{font-size:10px;font-weight:700;text-align:center;color:var(--muted);padding:4px 0}.day{min-height:58px;border:1px solid #e5e7eb;border-radius:8px;padding:3px;font-size:11px;background:#f9fafb;cursor:pointer}.day.today{border:2px solid var(--dark)}.day.selected{outline:2px solid var(--blue);outline-offset:-2px}.day-number{font-weight:700;margin-bottom:3px;font-size:11px}.mini-event{color:white;border-radius:6px;padding:3px;font-size:8px;margin-bottom:3px;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;background:var(--gray)}.mini-event.prog{background:var(--blue)}.mini-event.conf{background:var(--purple)}.mini-event.ruta{background:var(--orange)}.mini-event.pres{background:var(--teal)}.mini-event.asist,.mini-event.asistencia{background:var(--green)}.mini-event.falta,.mini-event.falto{background:var(--red)}.mini-event.obs,.mini-event.observado{background:#ca8a04}.day-mode-list{display:flex;flex-direction:column;gap:10px}
-    .detail{background:white;border:1px solid var(--border);border-radius:18px;padding:16px}.detail h2{margin:0 0 12px;font-size:20px}.detail-row{border-bottom:1px solid #e5e7eb;padding:9px 0;font-size:14px}.detail-row strong{display:block;font-size:12px;color:var(--muted);margin-bottom:3px}.reminder{border-radius:14px;padding:12px;margin:12px 0;font-size:14px;line-height:1.35;background:#f9fafb;border:1px solid var(--border)}.reminder.prog{border-left:6px solid var(--blue)}.reminder.conf{border-left:6px solid var(--purple)}.reminder.ruta{border-left:6px solid var(--orange)}.reminder.pres{border-left:6px solid var(--teal)}.reminder.asist,.reminder.asistencia{border-left:6px solid var(--green)}.reminder.falta,.reminder.falto{border-left:6px solid var(--red)}.reminder.obs,.reminder.observado{border-left:6px solid var(--yellow)}.guard-progress{margin:16px 0 20px}.guard-progress-track{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;position:relative}.guard-step{position:relative;text-align:center;padding-top:20px}.guard-step::before{content:"";position:absolute;top:7px;left:0;right:0;height:4px;background:#e5e7eb;z-index:0}.guard-step:first-child::before{left:50%}.guard-step:last-child::before{right:50%}.guard-step.operational::before{background:#9ca3af}.guard-step-dot{width:17px;height:17px;border-radius:999px;background:#d1d5db;border:3px solid white;box-shadow:0 0 0 2px #d1d5db;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:2}.guard-step.registered .guard-step-dot{background:var(--green);box-shadow:0 0 0 2px var(--green)}.guard-step.not-registered .guard-step-dot{background:#9ca3af;box-shadow:0 0 0 2px #9ca3af}.guard-step-label{font-size:12px;font-weight:700;color:var(--text);margin-top:5px}.guard-step-time{margin-top:4px;font-size:11px;color:var(--muted);min-height:26px;line-height:1.25}.guard-step.registered .guard-step-label{color:var(--green)}
+    .detail{background:white;border:1px solid var(--border);border-radius:18px;padding:16px}.detail h2{margin:0 0 12px;font-size:20px}.detail-row{border-bottom:1px solid #e5e7eb;padding:9px 0;font-size:14px}.detail-row strong{display:block;font-size:12px;color:var(--muted);margin-bottom:3px}
+    .persona-detalle{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+
+.persona-detalle-avatar{
+  width:38px;
+  height:38px;
+  min-width:38px;
+  border-radius:999px;
+  overflow:hidden;
+  background:linear-gradient(135deg,#111827,#374151);
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:900;
+  border:1px solid rgba(17,24,39,.12);
+}
+
+.persona-detalle-avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+.persona-detalle-info{
+  min-width:0;
+}
+
+.persona-detalle-nombre{
+  font-size:14px;
+  font-weight:900;
+  color:var(--text);
+  line-height:1.15;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.persona-detalle-meta{
+  margin-top:2px;
+  font-size:11.5px;
+  font-weight:700;
+  color:var(--muted);
+  line-height:1.15;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+    .reminder{border-radius:14px;padding:12px;margin:12px 0;font-size:14px;line-height:1.35;background:#f9fafb;border:1px solid var(--border)}.reminder.prog{border-left:6px solid var(--blue)}.reminder.conf{border-left:6px solid var(--purple)}.reminder.ruta{border-left:6px solid var(--orange)}.reminder.pres{border-left:6px solid var(--teal)}.reminder.asist,.reminder.asistencia{border-left:6px solid var(--green)}.reminder.falta,.reminder.falto{border-left:6px solid var(--red)}.reminder.obs,.reminder.observado{border-left:6px solid var(--yellow)}.guard-progress{margin:16px 0 20px}.guard-progress-track{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;position:relative}.guard-step{position:relative;text-align:center;padding-top:20px}.guard-step::before{content:"";position:absolute;top:7px;left:0;right:0;height:4px;background:#e5e7eb;z-index:0}.guard-step:first-child::before{left:50%}.guard-step:last-child::before{right:50%}.guard-step.operational::before{background:#9ca3af}.guard-step-dot{width:17px;height:17px;border-radius:999px;background:#d1d5db;border:3px solid white;box-shadow:0 0 0 2px #d1d5db;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:2}.guard-step.registered .guard-step-dot{background:var(--green);box-shadow:0 0 0 2px var(--green)}.guard-step.not-registered .guard-step-dot{background:#9ca3af;box-shadow:0 0 0 2px #9ca3af}.guard-step-label{font-size:12px;font-weight:700;color:var(--text);margin-top:5px}.guard-step-time{margin-top:4px;font-size:11px;color:var(--muted);min-height:26px;line-height:1.25}.guard-step.registered .guard-step-label{color:var(--green)}
     .empty{background:white;border:1px dashed var(--border);border-radius:16px;padding:18px;text-align:center;color:var(--muted);font-size:14px}
     .sms-card,.docs-card{background:white;border:1px solid var(--border);border-radius:18px;padding:12px;margin-bottom:10px}.sms-profile-actions,.docs-toolbar{display:flex;gap:8px;align-items:center;margin:0 0 8px}.sms-profile-actions button,.docs-toolbar button,.docs-actions button{padding:8px 12px;font-size:12px} .sms-profile-text{font-size:12px;color:var(--muted);line-height:1.25}.sms-profile-text strong{display:block;color:var(--text);font-size:13px;margin-bottom:2px}
 .sms-profile-line{display:flex;align-items:center;gap:10px}
@@ -630,7 +685,7 @@
         <div class="app-left-block">
           <button class="logout-mini-btn" onclick="cerrarSesionSegpriv()" title="Cerrar sesión" aria-label="Cerrar sesión">⎋</button>
           <div>
-            <div class="app-brand"><h1>SCaD</h1><span class="app-version">v0.3.72</span></div>
+            <div class="app-brand"><h1>SCaD</h1><span class="app-version">v0.3.73</span></div>
             <p>Portal operativo</p>
             <button id="btnLoginSegpriv" class="login-mini-link hidden" onclick="iniciarSesionSegpriv()">Iniciar sesión</button>
           </div>
@@ -1654,8 +1709,8 @@ function renderSupervisorDetail(){
       <div class="detail-row"><strong>Fecha</strong>${formatDate(item.fecha)}</div>
       <div class="detail-row"><strong>Horario</strong>${escapeHtml(item.horario||"")}</div>
       <div class="detail-row"><strong>Posición</strong>${escapeHtml(item.posicion||"")}</div>
-      <div class="detail-row"><strong>Guardia</strong>${escapeHtml(item.nombreGuardia||"No asignado")}</div>
-      <div class="detail-row"><strong>Estado guardia</strong>${escapeHtml(item.estado||"No registrado")}</div>
+<div class="detail-row"><strong>Guardia</strong>${renderPersonaDetalleSUP(item)}</div>
+<div class="detail-row"><strong>Estado guardia</strong>${escapeHtml(item.estado||"No registrado")}</div>
       <div class="detail-row"><strong>Validación SUP</strong>${escapeHtml(item.validacionSupervisor||"NO_REGISTRADO")}</div>
       <div class="detail-row"><strong>Observación SUP</strong>${escapeHtml(item.observacionSupervisor||"Sin observación.")}</div>
       <div class="detail-row"><strong>Indicaciones</strong>${escapeHtml(item.indicaciones||"Sin indicaciones.")}</div>
@@ -1665,6 +1720,69 @@ function renderSupervisorDetail(){
   `);
 }
 
+function renderPersonaDetalleSUP(item){
+  const nombre = item.nombreGuardia || item.guardiaNombre || "No asignado";
+
+  if(!nombre || nombre === "No asignado"){
+    return `
+      <div class="persona-detalle">
+        <div class="persona-detalle-avatar">SP</div>
+        <div class="persona-detalle-info">
+          <div class="persona-detalle-nombre">No asignado</div>
+          <div class="persona-detalle-meta">Guardia</div>
+        </div>
+      </div>
+    `;
+  }
+
+  const foto = obtenerFotoPersonaSUP(item);
+  const iniciales = obtenerInicialesPerfil(nombre);
+
+  const codigo =
+    item.codigoPersonal ||
+    item.clavePersonal ||
+    item.codigoGuardia ||
+    item.claveGuardia ||
+    "";
+
+  const puesto =
+    item.puestoGuardia ||
+    item.puesto ||
+    item.rolDelSistema ||
+    item.rolGuardia ||
+    "Guardia";
+
+  const meta = [codigo, puesto].filter(Boolean).join(" · ");
+
+  const avatarHtml = foto
+    ? `<img src="${escapeAttr(foto)}" alt="Foto de personal" onerror="this.parentElement.textContent='${escapeAttr(iniciales)}';" />`
+    : escapeHtml(iniciales);
+
+  return `
+    <div class="persona-detalle">
+      <div class="persona-detalle-avatar">${avatarHtml}</div>
+      <div class="persona-detalle-info">
+        <div class="persona-detalle-nombre">${escapeHtml(nombre)}</div>
+        <div class="persona-detalle-meta">${escapeHtml(meta || "Guardia")}</div>
+      </div>
+    </div>
+  `;
+}
+
+function obtenerFotoPersonaSUP(item){
+  return normalizarUrlImagenWix(
+    item.fotoPersonal ||
+    item.fotoUrl ||
+    item.fotoGuardia ||
+    item.fotoPersonalGuardia ||
+    item.guardiaFoto ||
+    item.foto ||
+    item.imagen ||
+    item.avatar ||
+    ""
+  );
+}
+    
 function getSupervisorReminderText(item){
   const val=normalizeServiceStatus(item.validacionSupervisor||"");
 
