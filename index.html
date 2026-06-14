@@ -60,10 +60,10 @@
 
 .pwa-profile-card{
   position:relative;
-  background:white;
-  border:1px solid var(--border);
-  border-radius:18px;
-  padding:10px 12px;
+  background:transparent;
+  border:none;
+  border-radius:0;
+  padding:4px 2px 10px;
   margin:-2px 0 10px;
   display:flex;
   align-items:center;
@@ -119,26 +119,25 @@
 }
 
     .pwa-profile-diag{
-  position:absolute;
-  top:7px;
-  right:12px;
-  font-size:9.5px;
+  margin-top:3px;
+  font-size:10px;
   font-weight:700;
   color:#9ca3af;
   letter-spacing:.15px;
-  line-height:1;
-  max-width:120px;
+  line-height:1.15;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-  pointer-events:none;
 }
 
-  .pwa-profile-diag{
-    top:6px;
-    right:10px;
-    font-size:8.8px;
-  }
+.pwa-profile-version{
+  margin-top:2px;
+  font-size:9px;
+  font-weight:400;
+  color:#9ca3af;
+  line-height:1.1;
+  white-space:nowrap;
+}
     
     .logout-mini-btn{width:30px;height:30px;padding:0;border-radius:999px;background:rgba(255,255,255,.08);color:#d1d5db;border:1px solid rgba(255,255,255,.14);font-size:15px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
     .login-mini-link{margin-top:4px;padding:0;border:none;background:transparent;color:#93c5fd;font-size:11px;font-weight:800;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
@@ -229,6 +228,7 @@
     .module-card.module-servicios,
 .module-card.module-cursos,
 .module-card.module-documentos,
+.module-card.module-mensajeria,
 .global-sms-head.module-mensajeria{
   background:#ffffff;
   border:1px solid var(--border);
@@ -248,6 +248,7 @@
   border-left-color:#f97316;
 }
 
+.module-card.module-mensajeria,
 .global-sms-head.module-mensajeria{
   border-left-color:#0f766e;
 }
@@ -270,12 +271,123 @@
   border-color:#fed7aa;
 }
 
+.module-card.module-mensajeria .module-icon,
 .global-sms-head.module-mensajeria .module-icon{
   color:#0f766e;
   background:#ecfdf5;
   border-color:#99f6e4;
 }
     .module-card-content{min-width:0}
+.module-active-card{
+  background:#ffffff;
+  border:1px solid var(--border);
+  border-left-width:7px;
+  border-radius:18px;
+  min-height:76px;
+  padding:13px 14px;
+  display:flex;
+  gap:13px;
+  align-items:center;
+  cursor:pointer;
+  margin:0 0 10px;
+  box-shadow:0 1px 3px rgba(17,24,39,.04);
+}
+
+.module-active-card .module-card-content{
+  flex:1;
+  min-width:0;
+}
+
+.module-active-card h2{
+  margin:0;
+  font-size:16px;
+  line-height:1.15;
+}
+
+.module-active-card p{
+  margin:4px 0 0;
+  font-size:12px;
+  line-height:1.2;
+  color:var(--muted);
+}
+
+.module-active-card .module-status-inline{
+  max-width:42%;
+}
+
+.module-active-caret{
+  color:var(--muted);
+  font-size:24px;
+  font-weight:900;
+  line-height:1;
+  margin-left:auto;
+  flex-shrink:0;
+}
+
+.module-active-card.module-servicios{border-left-color:#2563eb}
+.module-active-card.module-documentos{border-left-color:#f97316}
+.module-active-card.module-supervision{border-left-color:#0f766e}
+.module-active-card.module-manual{border-left-color:#111827}
+
+.module-active-card.module-servicios .module-icon{
+  color:#2563eb;
+  background:#eff6ff;
+  border-color:#bfdbfe;
+}
+
+.module-active-card.module-documentos .module-icon{
+  color:#f97316;
+  background:#fff7ed;
+  border-color:#fed7aa;
+}
+
+.module-active-card.module-supervision .module-icon{
+  color:#0f766e;
+  background:#ecfdf5;
+  border-color:#99f6e4;
+}
+
+.sms-float-btn{
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  width:56px;
+  height:56px;
+  border-radius:999px;
+  background:var(--dark);
+  color:white;
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:0 10px 24px rgba(17,24,39,.28);
+  z-index:9998;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  padding:0;
+}
+
+.sms-float-badge{
+  position:absolute;
+  top:-5px;
+  right:-5px;
+  min-width:23px;
+  height:23px;
+  padding:0 6px;
+  border-radius:999px;
+  background:var(--red);
+  color:white;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  font-weight:900;
+  border:2px solid white;
+}
+
+.sms-float-badge.flash{
+  animation:homeSmsFlash 1.05s ease-in-out infinite;
+}
+
     .panel-access-wrap{margin-top:14px}
     .panel-access-toggle{width:100%;border-radius:18px;background:linear-gradient(135deg,#111827,#374151);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;box-shadow:0 8px 18px rgba(17,24,39,.16)}
     .panel-access-toggle-main{display:flex;align-items:center;gap:10px;text-align:left}
@@ -662,6 +774,41 @@
   }
 }
 
+@media(max-width:520px){
+  .module-active-card{
+    min-height:64px;
+    padding:10px 12px;
+    gap:10px;
+  }
+
+  .module-active-card h2{
+    font-size:15px;
+  }
+
+  .module-active-card p{
+    font-size:11.5px;
+  }
+
+  .module-active-card .module-icon{
+    width:30px;
+    height:30px;
+    border-radius:11px;
+    font-size:16px;
+  }
+
+  .module-active-caret{
+    font-size:22px;
+  }
+
+  .sms-float-btn{
+    right:14px;
+    bottom:14px;
+    width:52px;
+    height:52px;
+    font-size:22px;
+  }
+}
+
     /* SMS global colapsable */
 .global-sms-panel{
   margin-bottom:10px;
@@ -669,8 +816,8 @@
 
 .global-sms-head{
   width:100%;
-  min-height:56px;
-  padding:8px 12px;
+  min-height:76px;
+  padding:13px 14px;
   border-radius:18px;
   background:var(--card);
   color:var(--text);
@@ -766,8 +913,8 @@
 
 @media(max-width:520px){
 .global-sms-head{
-  min-height:52px;
-  padding:8px 10px;
+  min-height:64px;
+  padding:10px 12px;
   gap:9px;
 }
 
@@ -806,7 +953,6 @@
             <div class="app-brand">
   <img class="app-logo" src="./icons/icon-192.png" alt="SCaD" />
   <div class="app-brand-text">
-    <div class="app-version-text">v0.3.79</div>
     <p>Portal operativo</p>
   </div>
 </div>
@@ -820,7 +966,6 @@
             <span id="installNote" class="install-note hidden">Instalando... puede tardar unos minutos.</span>
             <button id="btnIosInstallHelp" class="install-action hidden" onclick="openIosInstallHelp()">Ver tutorial</button>
           </div>
-<button class="topbar-icon-btn" onclick="goHome()" title="Inicio" aria-label="Inicio">⌂</button>
 <button class="topbar-icon-btn" onclick="refreshCurrentScreen()" title="Actualizar" aria-label="Actualizar">↻</button>
 <button class="topbar-icon-btn" onclick="openManualOperacion()" title="Manual de Operación" aria-label="Manual de Operación">ⓘ</button>
         </div>
@@ -828,28 +973,28 @@
     </div>
 
 <div id="pwaProfileCard" class="pwa-profile-card">
-  <div id="pwaProfileDiag" class="pwa-profile-diag">Em0MiD0A0AcA0Eo0</div>
-
   <div id="pwaProfileAvatar" class="pwa-profile-avatar">SP</div>
 
   <div class="pwa-profile-info">
     <div id="pwaProfileName" class="pwa-profile-name">Usuario SEGPRIV</div>
     <div id="pwaProfileMeta" class="pwa-profile-meta">Perfil operativo</div>
+    <div id="pwaProfileDiag" class="pwa-profile-diag">Em0MiD0A0AcA0Eo0</div>
+    <div id="pwaProfileVersion" class="pwa-profile-version">v0.3.80</div>
   </div>
 </div>
 
-    <section id="screenSms" class="global-sms-panel sms-collapsed">
+    <section id="screenSms" class="screen global-sms-panel sms-collapsed">
 <div class="global-sms-head module-mensajeria" onclick="toggleSmsPanel()" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleSmsPanel();}">    <span class="module-icon">💬</span>
 
     <span class="global-sms-title">
       <strong>Mensajería</strong>
-      <small id="homeSmsPendingText">SMS interno SEGPRIV.</small>
+      <small id="globalSmsPendingText">SMS interno SEGPRIV.</small>
     </span>
 
     <span class="global-sms-right">
-      <span id="homeSmsPendingBadge" class="home-pending-badge hidden">0</span>
+      <span id="globalSmsPendingBadge" class="home-pending-badge hidden">0</span>
       <button class="sms-head-refresh" onclick="event.stopPropagation(); loadSms(); loadHomeSmsPending();" title="Actualizar mensajería" aria-label="Actualizar mensajería">↻</button>
-      <span id="globalSmsCaret" class="global-sms-caret">▼</span>
+      <span id="globalSmsCaret" class="global-sms-caret">⌄</span>
     </span>
   </div>
 
@@ -919,19 +1064,31 @@
     <section id="screenHome" class="screen active">
       <div class="grid">
 
+<div class="module-card module-mensajeria" onclick="openSms()">
+  <span class="module-icon">💬</span>
+  <div class="module-card-content"><h2>Mensajería</h2><p id="homeSmsPendingText">SMS interno SEGPRIV.</p></div>
+  <span class="home-card-right">
+    <span id="homeSmsPendingBadge" class="home-pending-badge hidden">0</span>
+    <span class="home-card-caret">⌄</span>
+  </span>
+</div>
+
 <div class="module-card module-servicios" onclick="openServices()">
   <span class="module-icon">📅</span>
   <div class="module-card-content"><h2>Mis servicios</h2><p>Calendario, lista y estado operativo.</p></div>
+  <span class="home-card-right"><span class="home-card-caret">⌄</span></span>
 </div>
 
 <div class="module-card module-cursos" onclick="openCourses()">
   <span class="module-icon">🎓</span>
   <div class="module-card-content"><h2>Mis cursos</h2><p>Acceso a tus cursos en SCaD.</p></div>
+  <span class="home-card-right"><span class="home-card-caret">›</span></span>
 </div>
 
 <div class="module-card module-documentos" onclick="openDocuments()">
   <span class="module-icon">📄</span>
   <div class="module-card-content"><h2>Documentos</h2><p>Técnicos, operativos y administrativos.</p></div>
+  <span class="home-card-right"><span class="home-card-caret">⌄</span></span>
 </div>
       </div>
 
@@ -962,8 +1119,13 @@
     </section>
 
     <section id="screenDocuments" class="screen">
-      <div class="module-title-row"><div><h2>Documentos</h2><p>Técnicos, operativos y administrativos</p></div><div id="docsStatusLine" class="status-line module-status-inline">Sin cargar</div></div>
-      <div class="docs-card"><div class="docs-toolbar"><button class="secondary" onclick="goHome()">Regresar</button><button onclick="loadDocuments()">Actualizar</button></div><input id="docsSearchInput" class="docs-search" type="text" placeholder="Buscar documento..." oninput="handleDocumentsSearch()" /><div id="docsCategoryRow" class="docs-category-row"><button class="docs-category-btn active" onclick="setDocumentsCategory('TODOS')">Todos</button></div></div>
+      <div class="module-active-card module-documentos" onclick="goHome()" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goHome();}">
+        <span class="module-icon">📄</span>
+        <div class="module-card-content"><h2>Documentos</h2><p>Técnicos, operativos y administrativos</p></div>
+        <div id="docsStatusLine" class="status-line module-status-inline">Sin cargar</div>
+        <span class="module-active-caret">⌃</span>
+      </div>
+      <div class="docs-card"><div class="docs-toolbar"><button onclick="loadDocuments()">Actualizar</button></div><input id="docsSearchInput" class="docs-search" type="text" placeholder="Buscar documento..." oninput="handleDocumentsSearch()" /><div id="docsCategoryRow" class="docs-category-row"><button class="docs-category-btn active" onclick="setDocumentsCategory('TODOS')">Todos</button></div></div>
       <div id="docsList" class="docs-list"><div class="empty">Selecciona actualizar para cargar documentos.</div></div>
     </section>
 
@@ -992,7 +1154,12 @@
 </section>
     
     <section id="screenServices" class="screen">
-      <div class="module-title-row"><div><h2>Mis servicios</h2><p>Guardia: <span id="guardiaNombre">Guardia</span></p></div><div id="statusLine" class="status-line module-status-inline">Cargando servicios...</div></div>
+      <div class="module-active-card module-servicios" onclick="goHome()" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goHome();}">
+        <span class="module-icon">📅</span>
+        <div class="module-card-content"><h2>Mis servicios</h2><p>Guardia: <span id="guardiaNombre">Guardia</span></p></div>
+        <div id="statusLine" class="status-line module-status-inline">Cargando servicios...</div>
+        <span class="module-active-caret">⌃</span>
+      </div>
       <div class="view-filter-row"><div class="view-tabs compact-view-tabs"><button id="btnViewCalendar" class="active" onclick="setView('calendar')">Calendario</button><button id="btnViewList" onclick="setView('list')">Lista</button></div><div class="inline-period-controls"><label><span>Ir a fecha</span><input id="inputGoDate" type="date" onchange="goToSelectedDate()" /></label><label><span>Inicio</span><input id="inputStartDate" type="date" /></label><label><span>Fin</span><input id="inputEndDate" type="date" /></label><button onclick="loadServices()">Actualizar</button></div></div>
       <div class="legend legend-split"><div class="legend-row legend-row-status"><button id="filterTODOS" class="legend-pill active" onclick="setStatusFilter('TODOS')"><span class="legend-left"><span class="dot todos"></span><span class="legend-label">Todos</span></span><span id="countTODOS" class="legend-count">-</span></button><button id="filterCONF" class="legend-pill" onclick="setStatusFilter('CONF')"><span class="legend-left"><span class="dot conf"></span><span class="legend-label">CONF</span></span><span id="countCONF" class="legend-count">-</span></button><button id="filterRUTA" class="legend-pill" onclick="setStatusFilter('RUTA')"><span class="legend-left"><span class="dot ruta"></span><span class="legend-label">RUTA</span></span><span id="countRUTA" class="legend-count">-</span></button><button id="filterPRES" class="legend-pill" onclick="setStatusFilter('PRES')"><span class="legend-left"><span class="dot pres"></span><span class="legend-label">PRES</span></span><span id="countPRES" class="legend-count">-</span></button></div><div class="legend-row legend-row-compliance"><button id="filterASISTENCIA" class="legend-pill" onclick="setStatusFilter('ASISTENCIA')"><span class="legend-left"><span class="dot asistencia"></span><span class="legend-label">Asistencia</span></span><span id="countASISTENCIA" class="legend-count">-</span></button><button id="filterFALTA" class="legend-pill" onclick="setStatusFilter('FALTA')"><span class="legend-left"><span class="dot falta"></span><span class="legend-label">Falta</span></span><span id="countFALTA" class="legend-count">-</span></button><button id="filterOBSERVADO" class="legend-pill" onclick="setStatusFilter('OBSERVADO')"><span class="legend-left"><span class="dot observado"></span><span class="legend-label">Observado</span></span><span id="countOBSERVADO" class="legend-count">-</span></button></div></div>
       <div id="complianceSummary" class="compliance-strip"><div class="compliance-bar-pro"><div class="compliance-segment sinregistro">Sin registro de cumplimiento</div></div></div>
@@ -1000,16 +1167,14 @@
     </section>
 
     <section id="screenSupervisor" class="screen">
-      <div class="module-title-row">
-        <div>
-          <h2>Supervisión</h2>
-          <p>Supervisor: <span id="supervisorNombre">Supervisor</span></p>
-        </div>
-
-        <div class="supervisor-title-actions">
+      <div class="module-active-card module-supervision" onclick="goHome()" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goHome();}">
+        <span class="module-icon">🛡️</span>
+        <div class="module-card-content"><h2>Supervisión</h2><p>Supervisor: <span id="supervisorNombre">Supervisor</span></p></div>
+        <div class="supervisor-title-actions" onclick="event.stopPropagation();">
 <div id="supervisorStatusLine" class="status-line module-status-inline">Cargando...</div>
           <button class="secondary supervisor-informes-btn" onclick="openSupervisorInformes()">Informes</button>
         </div>
+        <span class="module-active-caret">⌃</span>
       </div>
       <div class="view-filter-row"><div class="view-tabs compact-view-tabs"><button id="btnSupervisorViewCalendar" class="active" onclick="setSupervisorView('calendar')">Calendario</button><button id="btnSupervisorViewList" onclick="setSupervisorView('list')">Lista</button></div><div class="inline-period-controls"><label><span>Ir a fecha</span><input id="supervisorInputGoDate" type="date" onchange="goToSupervisorSelectedDate()" /></label><label><span>Inicio</span><input id="supervisorInputStartDate" type="date" /></label><label><span>Fin</span><input id="supervisorInputEndDate" type="date" /></label><button onclick="loadSupervisorCoverages()">Actualizar</button></div></div>
       <div class="legend legend-split"><div class="legend-row legend-row-status"><button id="supervisorFilterTODOS" class="legend-pill active" onclick="setSupervisorStatusFilter('TODOS')"><span class="legend-left"><span class="dot todos"></span><span class="legend-label">Todos</span></span><span id="supervisorCountTODOS" class="legend-count">-</span></button><button id="supervisorFilterPROG" class="legend-pill" onclick="setSupervisorStatusFilter('PROG')"><span class="legend-left"><span class="dot conf"></span><span class="legend-label">PROG</span></span><span id="supervisorCountPROG" class="legend-count">-</span></button><button id="supervisorFilterCONF" class="legend-pill" onclick="setSupervisorStatusFilter('CONF')"><span class="legend-left"><span class="dot conf"></span><span class="legend-label">CONF</span></span><span id="supervisorCountCONF" class="legend-count">-</span></button><button id="supervisorFilterPRES" class="legend-pill" onclick="setSupervisorStatusFilter('PRES')"><span class="legend-left"><span class="dot pres"></span><span class="legend-label">PRES</span></span><span id="supervisorCountPRES" class="legend-count">-</span></button></div><div class="legend-row legend-row-compliance"><button id="supervisorFilterASISTENCIA" class="legend-pill" onclick="setSupervisorStatusFilter('ASISTENCIA')"><span class="legend-left"><span class="dot asistencia"></span><span class="legend-label">Asistencia</span></span><span id="supervisorCountASISTENCIA" class="legend-count">-</span></button><button id="supervisorFilterFALTA" class="legend-pill" onclick="setSupervisorStatusFilter('FALTA')"><span class="legend-left"><span class="dot falta"></span><span class="legend-label">Falta</span></span><span id="supervisorCountFALTA" class="legend-count">-</span></button><button id="supervisorFilterOBSERVADO" class="legend-pill" onclick="setSupervisorStatusFilter('OBSERVADO')"><span class="legend-left"><span class="dot observado"></span><span class="legend-label">Observado</span></span><span id="supervisorCountOBSERVADO" class="legend-count">-</span></button></div></div>
@@ -1023,6 +1188,11 @@
 
   </div>
 
+  <button id="smsFloatButton" class="sms-float-btn" onclick="openSms()" title="Mensajería" aria-label="Mensajería">
+    💬
+    <span id="smsFloatBadge" class="sms-float-badge hidden">0</span>
+  </button>
+
   <script>
 const API_BASE = "https://www.scad.mx/_functions";
 const SEGPRIV_ACCESS_URL = "https://www.scad.mx/sp-pwa-acceso";
@@ -1035,6 +1205,7 @@ let supervisorServiceFilter="TODOS",supervisorPositionFilter="TODOS",supervisorG
 let pwaContext=null,pwaCanCoord=false,pwaCanSup=false,panelAccessOpen=false;
 let CURRENT_MEMBER_ID="",CURRENT_EMAIL="",smsProfile=null,smsSelectedContact=null,smsRefreshTimer=null,smsSearchTimer=null,smsRegularContactList=[],smsPendingListData=[],docsItems=[],docsCategorias=[],docsCategoriaActual="TODOS",docsSearchTimer=null,deferredPrompt=null,smsHeaderStatusText="",smsHeaderPendingText="SMS interno SEGPRIV.";
 let smsPanelOpen=false;
+let activeModule=null;
 let manualReturnScreenId="screenHome";
 let manualCurrentLevel="";
 const ua=navigator.userAgent||"",isIOS=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1),isSafari=/^((?!chrome|android).)*safari/i.test(ua),isStandalone=(window.matchMedia&&window.matchMedia("(display-mode: standalone)").matches)||window.navigator.standalone===true;
@@ -1253,9 +1424,46 @@ function renderPerfilOperativo(){
 }
     
     function goHome(){
+  activeModule=null;
+  collapseSmsPanel(false);
   showScreen("screenHome");
   renderPanelAccess();
   loadHomeSmsPending();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function setActiveModule(moduleId){
+  activeModule=moduleId||null;
+
+  if(moduleId!=="sms"){
+    collapseSmsPanel(false);
+  }
+
+  if(moduleId==="sms"){
+    showScreen("screenSms");
+    window.scrollTo({top:0,behavior:"smooth"});
+    return;
+  }
+
+  if(moduleId==="services"){
+    showScreen("screenServices");
+    window.scrollTo({top:0,behavior:"smooth"});
+    return;
+  }
+
+  if(moduleId==="documents"){
+    showScreen("screenDocuments");
+    window.scrollTo({top:0,behavior:"smooth"});
+    return;
+  }
+
+  if(moduleId==="supervisor"){
+    showScreen("screenSupervisor");
+    window.scrollTo({top:0,behavior:"smooth"});
+    return;
+  }
+
+  showScreen("screenHome");
 }
 
 const MANUAL_OPERACION_DATA = [
@@ -1588,16 +1796,17 @@ function openManualLevel(levelId){
   window.scrollTo({top:0,behavior:"smooth"});
 }
     
-function openExternalUrl(url){window.location.href=url}function openCourses(){openExternalUrl(SCAD_MIS_CURSOS_URL)}function openDocuments(){showScreen("screenDocuments");loadDocuments()}function openServices(){showScreen("screenServices");loadServices()}function backToServices(){showScreen("screenServices")}function openSupervisor(){if(!pwaCanSup){showToast("Acceso SUP no autorizado","error");return}showScreen("screenSupervisor");loadSupervisorCoverages()}function backToSupervisor(){showScreen("screenSupervisor")}function openSupervisorInformes(){if(!pwaCanSup){showToast("Acceso SUP no autorizado","error");return}window.location.href=SEGPRIV_SUP_INFORMES_URL}function openSms(){
+function openExternalUrl(url){window.location.href=url}function openCourses(){openExternalUrl(SCAD_MIS_CURSOS_URL)}function openDocuments(){setActiveModule("documents");loadDocuments()}function openServices(){setActiveModule("services");loadServices()}function backToServices(){showScreen("screenServices")}function openSupervisor(){if(!pwaCanSup){showToast("Acceso SUP no autorizado","error");return}setActiveModule("supervisor");loadSupervisorCoverages()}function backToSupervisor(){showScreen("screenSupervisor")}function openSupervisorInformes(){if(!pwaCanSup){showToast("Acceso SUP no autorizado","error");return}window.location.href=SEGPRIV_SUP_INFORMES_URL}function openSms(){
+  setActiveModule("sms");
   expandSmsPanel();
 }function openCoordPanel(){if(!pwaCanCoord){showToast("Acceso COORD no autorizado","error");return}const sep=SEGPRIV_COORD_URL.includes("?")?"&":"?";window.location.href=`${SEGPRIV_COORD_URL}${sep}memberId=${encodeURIComponent(CURRENT_MEMBER_ID||"")}&email=${encodeURIComponent(CURRENT_EMAIL||"")}`}
     function toggleSmsPanel(){
   if(smsPanelOpen){
-    collapseSmsPanel();
+    goHome();
     return;
   }
 
-  expandSmsPanel();
+  openSms();
 }
 
 function expandSmsPanel(){
@@ -1609,12 +1818,12 @@ function expandSmsPanel(){
 
   if(panel) panel.classList.remove("sms-collapsed");
   if(body) body.classList.remove("sms-hidden");
-  if(caret) caret.textContent="▲";
+  if(caret) caret.textContent="⌃";
 
   loadSms();
 }
 
-function collapseSmsPanel(){
+function collapseSmsPanel(updateScreen=true){
   smsPanelOpen=false;
 
   const panel=document.getElementById("screenSms");
@@ -1623,7 +1832,11 @@ function collapseSmsPanel(){
 
   if(panel) panel.classList.add("sms-collapsed");
   if(body) body.classList.add("sms-hidden");
-  if(caret) caret.textContent="▼";
+  if(caret) caret.textContent="⌄";
+
+  if(updateScreen && getActiveScreenId()==="screenSms"){
+    showScreen("screenHome");
+  }
 }
     function togglePanelAccess(){if(!pwaCanCoord&&!pwaCanSup)return;panelAccessOpen=!panelAccessOpen;renderPanelAccess()}
 function setStatus(text,error=false){const el=document.getElementById("statusLine");if(!el)return;el.textContent=text;el.className=error?"status-line module-status-inline status-error":"status-line module-status-inline"}
@@ -2262,8 +2475,12 @@ function renderSmsAvatarHtml(itemOrPhoto,name="",extraClass=""){
 }
 
 function updateSmsHeaderText(){
-  const el=document.getElementById("homeSmsPendingText");
-  if(!el)return;
+  const textEls=[
+    document.getElementById("globalSmsPendingText"),
+    document.getElementById("homeSmsPendingText")
+  ].filter(Boolean);
+
+  if(!textEls.length)return;
 
   const parts=[];
   const status=String(smsHeaderStatusText||"").trim();
@@ -2279,7 +2496,7 @@ function updateSmsHeaderText(){
   if(code)parts.push(`Código: ${code}`);
   if(pending)parts.push(pending);
 
-  el.textContent=parts.join(" · ") || "SMS interno SEGPRIV.";
+  textEls.forEach(el=>{el.textContent=parts.join(" · ") || "SMS interno SEGPRIV.";});
 }
 
 function setSmsStatus(text,error=false){
@@ -2416,17 +2633,31 @@ async function loadSmsRegularContacts(){
     getSmsPhotoFromItem(item)
   );
 }
-    async function loadHomeSmsPending(){
+    function updateSmsPendingBadges(total){
+  const badges=[
+    document.getElementById("globalSmsPendingBadge"),
+    document.getElementById("homeSmsPendingBadge"),
+    document.getElementById("smsFloatBadge")
+  ].filter(Boolean);
+
+  badges.forEach(badge=>{
+    if(Number(total||0)>0){
+      badge.textContent=String(total);
+      badge.classList.remove("hidden");
+      badge.classList.add("flash");
+    }else{
+      badge.textContent="0";
+      badge.classList.add("hidden");
+      badge.classList.remove("flash");
+    }
+  });
+}
+
+async function loadHomeSmsPending(){
   resolveCurrentMember();
 
-  const badge = document.getElementById("homeSmsPendingBadge");
-  const text = document.getElementById("homeSmsPendingText");
-
-  if(!badge || !text) return;
-
   if(!CURRENT_MEMBER_ID){
-    badge.classList.add("hidden");
-    badge.classList.remove("flash");
+    updateSmsPendingBadges(0);
     smsHeaderPendingText = "SMS interno SEGPRIV.";
     updateSmsHeaderText();
     return;
@@ -2436,8 +2667,7 @@ async function loadSmsRegularContacts(){
     const data = await fetchJson(`${API_BASE}/sprivSmsPending?memberId=${encodeURIComponent(CURRENT_MEMBER_ID)}&t=${Date.now()}`);
 
     if(!data.ok){
-      badge.classList.add("hidden");
-      badge.classList.remove("flash");
+      updateSmsPendingBadges(0);
       smsHeaderPendingText = "SMS interno SEGPRIV.";
       updateSmsHeaderText();
       return;
@@ -2445,23 +2675,18 @@ async function loadSmsRegularContacts(){
 
     const total = Number(data.total || 0);
 
+    updateSmsPendingBadges(total);
+
     if(total > 0){
-      badge.textContent = String(total);
-      badge.classList.remove("hidden");
-      badge.classList.add("flash");
       smsHeaderPendingText = total === 1 ? "1 mensaje sin leer." : `${total} mensajes sin leer.`;
       updateSmsHeaderText();
     }else{
-      badge.textContent = "0";
-      badge.classList.add("hidden");
-      badge.classList.remove("flash");
       smsHeaderPendingText = "Sin mensajes pendientes.";
       updateSmsHeaderText();
     }
   }catch(err){
     console.warn("No se pudo cargar indicador SMS Home:", err);
-    badge.classList.add("hidden");
-    badge.classList.remove("flash");
+    updateSmsPendingBadges(0);
     smsHeaderPendingText = "SMS interno SEGPRIV.";
     updateSmsHeaderText();
   }
